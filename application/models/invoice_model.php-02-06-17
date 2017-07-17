@@ -1,0 +1,209 @@
+<?php
+class Invoice_model extends CI_Model {
+
+    /**
+    * Responsable for auto load the database
+    * @return void
+    */
+    public function __construct()
+    {
+        $this->load->database();
+    }
+
+    public function get_invoice($search_string=null, $payment_status=null, $order=null, $order_type='Asc', $limit_start, $limit_end){
+
+    	$this->db->select()->from('invoice');
+    	$this->db->join('jobpost','jobpost.id = invoice.job_id');
+
+    	if ($search_string){
+    		//$this->db->where("(`price` LIKE '$search_string')");
+    		$this->db->where('price',$search_string);
+    	}
+
+        if($payment_status!='') {
+			//echo $payment_status;die;
+			//$this->db->where('payment',$payment_status);
+		}
+
+
+    	$this->db->limit($limit_start, $limit_end);
+    	$query = $this->db->get();
+
+    	return $query->result_array();
+
+    }
+
+    function getTotalAccountsPayable(){
+
+    	$this->db->select()->from('invoice');
+    	$this->db->join('bidjob','bidjob.id = invoice.bid_id');
+    	$this->db->where('awarded',1);
+    	$this->db->where('payment',0);
+	   	$query = $this->db->get();
+
+    	return $query->result();
+
+    }
+
+    function fetchAllInvoices($num = 10, $start = 0, $search_string = null, $payment_status = '0', $dueFrom = null, $dueTo = null, $order_tye = 'invoice.id ASC')
+    {
+        if($payment_status == ''){
+            $payment_status = '0';
+        }
+        if ($dueFrom) {
+            $dateToConvert = strtotime($dueFrom);
+            $dateFromNew = date( 'Y-m-d H:i:s', $dateToConvert );
+            $dateToConvert = strtotime($dueTo);
+            $dateToNew = date( 'Y-m-d H:i:s', $dateToConvert );
+//            $this->db->where('date_add(complete_date, INTERVAL 31 DAY) >=', $dateFromNew);
+//            $this->db->where('date_add(complete_date, INTERVAL 31 DAY) <=', $dateToNew);
+            $this->db->where('complete_date >= ', $dateFromNew);
+            $this->db->where('complete_date <= ', $dateToNew);
+        }
+            if ($search_string){
+                if(is_numeric($search_string) == true){
+                $this->db->where("(jobpost.name LIKE '%".$search_string."%' OR invoice.invoice_id LIKE '%".$search_string."%' OR translator.first_name LIKE '%".$search_string."%' OR translator.last_name LIKE '%".$search_string."%' OR jobpost.lineNumberCode LIKE '%".$search_string."%' AND jobpost.lineNumber = ".$search_string.")");
+                }else{
+                $this->db->where("(jobpost.name LIKE '%".$search_string."%' OR invoice.invoice_id LIKE '%".$search_string."%' OR translator.first_name LIKE '%".$search_string."%' OR translator.last_name LIKE '%".$search_string."%' OR jobpost.lineNumberCode LIKE '%".$search_string."%')");
+                }
+            }
+                if(gettype($payment_status) == 'string'){
+                    $this->db->where('payment',$payment_status);
+                }
+        $this->db->where('is_deleted', 0);
+        //$this->db->where('bidjob.stage', 2);
+
+        //$this->db->order_by($order, $order_tye);
+
+        $this->db->select('*,jobpost.price AS jobpostprice, bidjob.price AS bidjobprice, bidjob.id AS bidjobid, jobpost.id AS jobpostid ,jobpost.stage AS jobpoststage, bidjob.stage AS bidjobstage, jobpost.name AS job_name')->from('invoice')->limit($num,$start);
+        $this->db->join('bidjob','bidjob.id = invoice.bid_id');
+        $this->db->join('jobpost','jobpost.id = bidjob.job_id');
+        $this->db->join('translator','translator.id = bidjob.trans_id');
+        $this->db->order_by($order_tye);
+        $query = $this->db->get();
+//   echo $this->db->last_query();exit();
+        return $query->result();
+    }
+
+    public function getTotalNumberOfInvoices($search_string = null, $payment_status = null, $dueFrom = null, $dueTo = null)
+    {
+        if ($dueFrom) {
+            $dateToConvert = strtotime($dueFrom);
+            $dateFromNew = date( 'Y-m-d H:i:s', $dateToConvert );
+            $dateToConvert = strtotime($dueTo);
+            $dateToNew = date( 'Y-m-d H:i:s', $dateToConvert );
+
+//            $this->db->where('date_add(complete_date, INTERVAL 31 DAY) >=', $dateFromNew);
+//            $this->db->where('date_add(complete_date, INTERVAL 31 DAY) <=', $dateToNew);
+            $this->db->where('complete_date >= ', $dateFromNew);
+            $this->db->where('complete_date <= ', $dateToNew);
+        }
+            if ($search_string){
+                $this->db->where("(name LIKE '%".$search_string."%' OR invoice_id LIKE '%".$search_string."%' OR first_name LIKE '%".$search_string."%' OR last_name LIKE '%".$search_string."%' OR lineNumberCode LIKE '%".$search_string."%')");
+            }
+                if(gettype($payment_status) == 'string'){
+                    $this->db->where('payment',$payment_status);
+                }
+
+
+        $this->db->where('is_deleted', 0);
+        //$this->db->where('bidjob.stage', 2);
+
+        $this->db->order_by('bidjob.complete_date',"ASC");
+        $this->db->select('*')->from('invoice');
+        $this->db->join('bidjob','bidjob.id = invoice.bid_id');
+        $this->db->join('jobpost','jobpost.id = bidjob.job_id');
+        $this->db->join('translator','translator.id = bidjob.trans_id');
+        $query = $this->db->get();
+//        echo $this->db->last_query();exit();
+        return $query->result();
+    }
+
+    function fetchAllInvoicesIndex($num = 10, $start = 0){
+
+        $this->db->select()->from('invoice');
+        $this->db->order_by('invoice_id',"ASC");
+        $this->db->group_by('invoice_id');
+        $query = $this->db->get();
+
+        return $query->result_array();
+    }
+
+    function getTotalNumberOfInvoicesIndex(){
+
+        $this->db->group_by('invoice.id');
+        $this->db->where('awarded',1);
+        $this->db->select()->from('invoice')->limit($num,$start);
+        $this->db->join('jobpost','jobpost.id = invoice.job_id');
+        $this->db->join('translator','translator.id = invoice.trans_id');
+        $this->db->join('bidjob','bidjob.job_id = jobpost.id');
+        $this->db->order_by('complete_date',"ASC");
+
+        $query = $this->db->get();
+
+        return $query->result_array();
+    }
+
+    /**
+    * Count the number of rows
+    * @param int $manufacture_id
+    * @param int $search_string
+    * @param int $order
+    * @return int
+    */
+    function count_invoice($search_string=null,$payment_status=null, $order=null)
+    {   //$job_id= $this->uri->segment(3);
+		$this->db->select('*');
+		$this->db->from('invoice');
+		//$this->db->where(array('awarded'=>'1','stage' =>'2' ));
+		if($search_string){
+			$this->db->where("(`invoice_id` LIKE '%$search_string%')");
+		}
+		if($payment_status!='') {
+			$this->db->where('payment',$payment_status);
+		}
+		if($order){
+			$this->db->order_by($order, 'Asc');
+		}else{
+		    $this->db->order_by('id', 'Asc');
+		}
+		$query = $this->db->get();
+		//echo $this->db->last_query(); die;
+		return $query->num_rows();
+    }
+
+    function getInvoiceInformation($invoiceID){
+    	$this->db->where('invoice_id', $invoiceID);
+    	$this->db->select()->from('invoice');
+    	$query = $this->db->get();
+
+    	return $query->first_row();
+    }
+
+    function updateInvoicePayment($invoiceData, $invoiceID) {
+    	$this->db->where('invoice_id',$invoiceID);
+    	$query = $this->db->update('invoice',$invoiceData);
+
+        if( $query){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+
+	function delete_invoice($id){
+        $bid_id = $this->db->select(array('invoice.bid_id','jobpost.name'))->join('jobpost','jobpost.id = invoice.job_id','left')->where('invoice_id',$id)->get('invoice');
+        if($bid_id->num_rows() > 0){
+            $bid_id  = $bid_id->result()[0];
+            if(empty($bid_id->name)) {
+                $this->db->where('id', $bid_id->bid_id)->delete('bidjob');
+            }
+        }
+		$this->db->where('invoice_id', $id);
+		$this->db->delete('invoice');
+	}
+
+
+}
+?>

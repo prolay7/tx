@@ -1,0 +1,176 @@
+<?php
+$this->load->view('vwHeader');
+?>
+<div id="content">
+  <div id="title">
+    <h1 class="inner title-2">My Profile
+    <small>
+        <i class="ace-icon fa fa-angle-double-right"></i>
+        Edit 
+    </small>
+      <ul class="breadcrumb-inner">
+        <li> <a href="<?php echo base_url()?>"><i class="ace-icon fa fa-home home-icon"></i>Home</a></li>
+        <li> <a href="<?php echo base_url()?>translator/changeprofile">Change Profile</a></li>
+      </ul>
+    </h1>
+  </div>
+  <div class="inner"> 
+    
+    <!-- Content Inner -->
+    <div class="content-inner"> 
+      
+      <!-- Content Center -->
+         <div class="content-center">
+        
+        <div id="contacts" class="block post-box box-1 contact-address">
+          <div class="block-content">
+            <div class="block background">
+          <h2 class="title-1">Edit Profile</h2>
+          <div class = "block-content">
+                 <?php if (validation_errors()!="") { ?>
+			 <div class="alert alert-danger">
+                <button type="button" class="close" data-dismiss="alert">
+                    <i class="ace-icon fa fa-times"></i>
+                </button>
+                <p> <?php echo validation_errors(); ?> </p>
+            </div>
+		<?php } ?>
+        
+        <?php if (isset($message_error) && $message_error!="") { ?>
+			 <div class="alert alert-danger">
+                <button type="button" class="close" data-dismiss="alert">
+                    <i class="ace-icon fa fa-times"></i>
+                </button>
+                <p> <?php echo $message_error; ?> </p>
+            </div>
+		<?php } ?>
+        
+        <?php if (isset($message_success) && $message_success!="") { ?>
+			 <div class="alert alert-block alert-success">
+				<button type="button" class="close" data-dismiss="alert">
+					<i class="ace-icon fa fa-times"></i>
+				</button>
+                <p> <?php echo $message_success; ?> </p>
+                
+            </div>
+		<?php } ?>
+        
+        
+        <?php if($this->session->flashdata('message_success')){ ?>
+        	<div class="alert alert-block alert-success">
+				<button type="button" class="close" data-dismiss="alert">
+					<i class="ace-icon fa fa-times"></i>
+				</button>
+                <p> <?php echo $this->session->flashdata('message_success'); ?> </p>
+               
+            </div>
+        <?php } ?>
+        
+        <?php if($this->session->flashdata('message_error')){ ?>
+        	<div class="alert alert-block alert-success">
+				<button type="button" class="close" data-dismiss="alert">
+					<i class="ace-icon fa fa-times"></i>
+				</button>
+                <p> <?php echo $this->session->flashdata('message_error'); ?> </p>
+            </div>
+        <?php } ?>
+          <?php 
+		$attributes = array('class' => 'form-registration', 'id'=>'changeprofile'); 
+		echo form_open('translator/myprofile', $attributes); 
+		?>
+           
+              <div id = "about">
+                <?php /*?><input title="Your Title" type="text" name="title" class="textfield2" placeholder="Title" onclick="this.value='';" onfocus="$(this).addClass('active');" onblur="$(this).removeClass('active');"/>
+                
+                <input title="Your alias" type="text" name="alias" class="textfield2" placeholder="Alias" onclick="this.value='';" onfocus="$(this).addClass('active');" onblur="$(this).removeClass('active');"/><?php */?>
+                                                                                  <label class="col-sm-4 control-label no-padding-right" for="form-field-1">Email(Username):  </label>
+                  <input title="Your email address" type="email" name="email_address" class="textfield2" placeholder="Email address" onfocus="$(this).addClass('active');" onblur="$(this).removeClass('active');" value="<?php echo $results[0]['email_address']; ?>" readonly/>
+                                                                  <label class="col-sm-4 control-label no-padding-right" for="form-field-1">First Name*:  </label>  
+                <input title="Your FirstName" type="text" name="first_name" class="textfield2 validate[required] text-input" placeholder="First Name"  onfocus="$(this).addClass('active');" onblur="$(this).removeClass('active');" value="<?php echo $results[0]['first_name']; ?>"/>
+                                                                  <label class="col-sm-4 control-label no-padding-right" for="form-field-1">Last Name*:  </label>
+                   <input title="Your LastName" type="text" name="last_name" class="textfield2 validate[required] text-input" placeholder="Last Name"  onfocus="$(this).addClass('active');" onblur="$(this).removeClass('active');" value="<?php echo $results[0]['last_name']; ?>"/>
+                   
+                                                                                <label class="col-sm-4 control-label no-padding-right" for="form-field-1">Location:  </label>
+                 <input title="Your Location" type="text" name="location" class="textfield2" placeholder="Location"  onfocus="$(this).addClass('active');" onblur="$(this).removeClass('active');" value="<?php echo $results[0]['location']; ?>"/>
+                 
+          
+                <!-- <input title="Your Description" type="text" name="desc" class="textfield2" placeholder="Overview"  onfocus="$(this).addClass('active');" onblur="$(this).removeClass('active');" value="<?php echo $results[0]['desc']; ?>"/>-->
+                 
+                   <label class="col-sm-4 control-label no-padding-right" for="form-field-1"> Select Language(Maximum 3)*</label>
+                   <?php 
+                        $sql=" SELECT * FROM `languages` ";
+                        $val=$this->db->query($sql);
+                        $lang=$val->result();
+						$arrlanguage = $results[0]['language'];
+						$language = explode(",", $arrlanguage);
+						//echo '<pre>'; print_r($language);die;
+                        ?>
+						<select name="language[]" id="language"  multiple="multiple" class="textfield2 validate[required,minListOptions[1],maxListOptions[3]] text-input">
+							<option value="">Select language</option>
+								<?php 
+							
+							foreach ($lang as $lang1) { ?>
+							<option value="<?php echo $lang1->id; ?>" <?php if(in_array($lang1->id, $language)) { echo 'selected="selected"'; }?>><?php echo $lang1->name; ?></option>
+							<?php }  ?>
+						</select>
+                                <label class="col-sm-3 control-label no-padding-right" for="form-field-1">over view*: </label>
+                 <textarea class="textfield2 validate[required]" id="editor" name="desc" placeholder="Overview" onfocus="$(this).addClass('active');" onblur="$(this).removeClass('active');"><?php echo $results[0]['desc']; ?></textarea>
+              </div>
+             
+              <div id = "send">
+             <button class="btn btn-info" type="submit">
+            <i class="ace-icon fa fa-check bigger-110"></i>
+            Submit
+           </button>
+                <button class="btn btn-info" type="reset" >
+                        <i class="ace-icon fa fa-undo bigger-110"></i>
+                        Reset
+                    </button>
+              </div>
+           <?php echo form_close(); ?>
+          </div>
+        </div>
+            
+          </div>
+        </div>
+      </div>
+      <!-- /Content Center --> 
+      
+      <!-- Content Right -->
+       <div class="content-right">
+ 		<?php
+				$this->load->view('translator/includes/vwSidebar-left');
+			?>
+            </div>
+      <!-- /Content Right -->
+      
+      <div class="clear"></div>
+      <!-- Clear Line --> 
+      
+    </div>
+    <!-- /Content Inner --> 
+    
+  </div>
+</div>
+
+
+	
+        <!-- inline scripts related to this page -->
+		
+   <!-- page specific plugin ck editor scripts -->
+<link rel="stylesheet" href="<?php echo HTTP_ASSETS_PATH_ADMIN; ?>ckeditor/samples/css/samples.css" />
+<link rel="stylesheet" href="<?php echo HTTP_ASSETS_PATH_ADMIN; ?>ckeditor/samples/toolbarconfigurator/lib/codemirror/neo.css" />
+<script src="<?php echo HTTP_ASSETS_PATH_ADMIN; ?>ckeditor/ckeditor.js"></script>
+<script src="<?php echo HTTP_ASSETS_PATH_ADMIN; ?>ckeditor/samples/js/sample.js"></script>
+<script>
+    initSample();
+</script>
+
+
+      
+<?php
+$this->load->view('vwFooter');
+?>
+<?php
+$this->load->view('vwFooterLower');
+?>

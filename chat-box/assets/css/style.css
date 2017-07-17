@@ -1,0 +1,265 @@
+﻿
+/*======================================
+    GENERAL STYLES
+======================================= */
+
+body {
+   font-family:Verdana;
+}
+.pad-top {
+    padding-top:30px;
+}
+.pad-bottom {
+     padding-bottom:30px;
+}
+/*======================================
+    CHAT BOX STYLES
+======================================= */
+
+.hr-clas {
+    border-top: 1px solid #5bbc2e;
+}
+
+.chat-box-main {
+    max-height:500px;
+    overflow:auto;
+}
+.chat-box-div {
+    border:2px solid #5bbc2e;
+    border-bottom:2px solid #5bbc2e;
+	 width: 80%;
+    margin: 0px auto;
+} 
+.chat-box-head {
+    padding: 10px 15px;
+border-bottom: 2px solid #5bbc2e;
+background-color: #5bbc2e;
+color: #fff;
+text-align: center;
+
+}
+
+.chat-box-left {
+    width: 60%;
+    height: auto;
+    padding: 5px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    position: relative;
+    font-size:12px;
+	float: left;
+}
+.chat-box-left:after {
+    top: 100%;
+    left: 10%;
+    border: solid transparent;
+    content: " ";
+    position: absolute;
+    border-top-color: #C5C5C5;
+    border-width: 15px;
+    margin-left: -15px;
+	display:none;
+}
+
+.chat-box-name-left {
+    margin-top: 4px;
+    text-align: left;
+    color:#049E64;
+	width: 20%;
+	float: left;
+	font-size: 13px;
+}
+.chat-box-name-left img {
+        max-width:40px;
+        border: 2px solid #049E64;
+    }
+
+    .chat-box-right {
+    width: 70%;
+    height: auto;
+    padding: 5px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    position: relative;
+    font-size:12px;
+	float:  left;
+}
+.chat-box-right:after {
+    top: 100%;
+    right: 10%;
+    border: solid transparent;
+    content: " ";
+    position: absolute;
+    border-top-color: #C5C5C5;
+    border-width: 15px;
+    margin-left: -15px;
+	display:none;
+}
+
+.chat-box-name-right {
+    color: #354EA0;
+    margin-top: 4px;
+    text-align: left;
+	width:20%;
+	float: left;
+	font-size:13px;
+}
+.full_div_chat{ background: rgba(222, 222, 222, 0.24); overflow: hidden; padding: 3px 20px;}
+.full_div_white{ background: #fff; overflow: hidden; padding: 3px 20px;}
+.fullchat_date{ float: right; font-size: 10px;}
+
+.chat-box-name-right img {
+        max-width:40px;
+        border: 2px solid #354EA0;
+    }
+.chat-box-footer {
+    background-color: #D8D8D8;
+padding: 10px;
+}
+
+/*======================================
+    CHAT BOX ONLINE STYLES
+======================================= */
+
+
+.hr-clas-low {
+    border-top: 1px solid #C5C5C5;
+}
+
+.chat-box-online {
+     max-height:554px;
+    overflow:auto;
+}
+.chat-box-online-div {
+    border:2px solid #03DB2F;
+    border-bottom:2px solid #03DB2F;
+} 
+
+.chat-box-online-head {
+    padding: 10px 15px;
+border-bottom: 2px solid #03DB2F;
+background-color: #03DB2F;
+color: #fff;
+text-align: center;
+
+}
+
+.chat-box-online-left {
+    margin-left: 10px;
+    text-align:left;
+    color:#049E64;
+}
+    .chat-box-online-left img {
+        max-width:30px;
+        border:1px solid #049E64;
+        margin-bottom:10px;
+    }
+    .chat-box-online-right {
+    margin-right: 10px;
+   text-align:right;
+    color:#354EA0;
+}
+    .chat-box-online-right img {
+       max-width:30px;
+        border:1px solid #354EA0;
+        margin-bottom:10px;
+        
+    }
+
+    /*======================================
+  NEW  CHAT  STYLES
+======================================= */
+
+.chat-box-new {
+     max-height:554px;
+    overflow:auto;
+}
+.chat-box-new-div {
+    border:2px solid #ff6a00;
+    border-bottom:2px solid #ff6a00;
+} 
+
+.chat-box-new-head {
+    padding: 10px 15px;
+border-bottom: 2px solid #ff6a00;
+background-color: #ff6a00;
+color: #fff;
+text-align: center;
+
+}
+
+
+.altter-header{margin:5px 0 10px; border-bottom:2px solid #5bbc2e;}
+.logo-alter{ float:left; width:30%;}
+.alter-menu{ float:right; width:70%}
+.altter-header .navbar{ margin-bottom:10px !important;}
+.altter-header .navbar-default{ background:none; border:none !important;}
+.altter-header .navbar-collapse{ padding:0px !important;}
+.altter-header .navbar-nav{ float:right;}
+.altter-header .navbar-default .navbar-nav > li > a { color: #000 !important;   padding: 15px!important;}
+.altter-header .navbar-default .navbar-nav > li > a:hover { color: #000 !important; border-bottom:1px solid #5bbc2e;    padding: 15px 15px 14px !important;}
+.uplaod-fileeee{ background-image:url(atc.png); background-repeat:no-repeat; background-position:center;}
+.ttalc{ text-align:center; padding-top:10px;}
+.nopad{ padding:0px !important;}
+.footer-alter{height: 50px; background: none repeat scroll 0% 0% rgb(77, 77, 77);}
+.copytext-alt{ float:left; line-height: 50px; color: #808080; float: left; font-size: 12px;}
+.copytext-alt a{ color:#ccc;}
+.alter-socials{ float:right;}
+.alter-socials ul{ line-height:50px; margin:0px auto; padding:0px;}
+.alter-socials ul li{ display:inline; padding-left:5px;}
+.alter-socials ul li a{ color:#fff;}
+.alter-socials ul li a:hover{ color:#65B733;}
+#sendie{ width:100%;}
+.input-group{ width:100%}
+.dropbtn {
+    color: black;
+    padding: 4px;
+    font-size: 15px;
+    border: none;
+    cursor: pointer;
+    line-height: 47px;
+}
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+	z-index: 99999999;
+	max-height: 200px;
+    overflow: scroll;
+}
+
+.dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+}
+
+.dropdown-content a:hover {background-color: #f1f1f1; }
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+.dropdown:hover .dropbtn {
+  
+}
+
+@media screen and (max-width: 768px) 
+{
+.chat-box-name-left{ width:100%; border-bottom:0px solid #ccc;}
+.chat-box-left{ width:100%;}
+.fullchat_date{ width:100%; text-align:right;}
+.chat-box-name-right{ width:100%; border-bottom:0px solid #ccc;}
+.chat-box-right{ width:100%;}
+
+}

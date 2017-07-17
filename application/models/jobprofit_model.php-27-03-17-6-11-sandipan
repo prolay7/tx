@@ -1,0 +1,139 @@
+<?php
+class Jobprofit_model extends CI_Model {
+
+    /**
+    * Responsable for auto load the database
+    * @return void
+    */
+    public function __construct()
+    {
+        $this->load->database();
+    }
+
+    public function get_jobprofit($search_string = null, $order = null, $order_type='Asc', $limit_start, $limit_end)
+    {
+        $sql = "select id, name, lineNumberCode, job_price, awarded_price, profit, stage, created, modified
+                from (
+                    select t1.id, t1.name, t1.lineNumberCode, j.price job_price, sum(b.price) as awarded_price, (j.price - sum(b.price)) profit, b.is_done, t1.created, b.stage, j.modified
+                    from (
+                      select id, name, lineNumberCode, lineNumber, created
+                      from jobpost
+                      where lineNumberCode in (select lineNumberCode from jobpost group by lineNumberCode)
+                    ) t1
+                     join bidjob b on b.job_id = t1.id
+                     join jobpost j on j.id = b.job_id
+                    where b.awarded = 1 and (b.stage = 2 or b.stage = 3) and b.is_done = 1
+                    group by t1.lineNumber
+                    union
+                    select t1.id, t1.name, t1.lineNumberCode, j.price job_price, sum(b.price) as awarded_price, (j.price - sum(b.price)) profit, b.is_done, t1.created, b.stage, j.modified
+                    from (
+                      select id, name, lineNumberCode, created
+                      from jobpost
+                      where lineNumberCode = ''
+                    ) t1
+                     join bidjob b on b.job_id = t1.id
+                     join jobpost j on j.id = b.job_id
+                    where b.awarded = 1 and (b.stage = 2 or b.stage = 3) and b.is_done = 1
+                    group by t1.id
+                ) t1 ";
+
+        if (!is_null($search_string) and $search_string != '') {
+            $sql .= " WHERE name LIKE '%".$search_string."%' OR lineNumberCode LIKE '%".$search_string."%' ";
+        }
+
+        //$sql .= " order by modified desc ";
+		
+		//vince change
+		 $sql .= " order by id desc ";
+		
+        $sql .= "LIMIT {$limit_end}, {$limit_start}";
+
+        $query = $this->db->query($sql);
+
+//        echo $this->db->last_query(); exit;
+
+		return $query->result_array();
+    }
+
+    /**
+    * Count the number of rows
+    * @param int $manufacture_id
+    * @param int $search_string
+    * @param int $order
+    * @return int
+    */
+    function count_jobprofit($search_string=null, $order=null)
+    {
+        $sql = "select id, name, lineNumberCode, job_price, awarded_price, profit, stage, created
+                from (
+                    select t1.id, t1.name, t1.lineNumberCode, j.price job_price, sum(b.price) as awarded_price, (j.price - sum(b.price)) profit, b.is_done, t1.created, b.stage
+                    from (
+                      select id, name, lineNumberCode, lineNumber, created
+                      from jobpost
+                      where lineNumberCode in (select lineNumberCode from jobpost group by lineNumberCode)
+                    ) t1
+                     join bidjob b on b.job_id = t1.id
+                     join jobpost j on j.id = b.job_id
+                    where b.awarded = 1 and (b.stage = 2 or b.stage = 3) and b.is_done = 1
+                    group by t1.lineNumber
+                    union
+                    select t1.id, t1.name, t1.lineNumberCode, j.price job_price, sum(b.price) as awarded_price, (j.price - sum(b.price)) profit, b.is_done, t1.created, b.stage
+                    from (
+                      select id, name, lineNumberCode, created
+                      from jobpost
+                      where lineNumberCode = ''
+                    ) t1
+                     join bidjob b on b.job_id = t1.id
+                     join jobpost j on j.id = b.job_id
+                    where b.awarded = 1 and (b.stage = 2 or b.stage = 3) and b.is_done = 1
+                    group by t1.id
+                ) t1 ";
+
+        if (!is_null($search_string) and $search_string != '') {
+            $sql .= " WHERE name LIKE '%".$search_string."%' OR lineNumberCode LIKE '%".$search_string."%' ";
+        }
+
+        $query = $this->db->query($sql);
+
+        return $query->num_rows();
+    }
+
+    public function get_finance_summary()
+    {
+        $sql = "select sum(job_price) total_job_price, sum(awarded_price) total_awarded_price, sum(profit) total_profit, (sum(profit)/count(job_price)) average_profit
+                from (
+                select t1.id, t1.name, j.price job_price, sum(b.price) as awarded_price, (j.price - sum(b.price)) profit, t1.created
+                from (
+                  select id, name, lineNumber, created
+                  from jobpost
+                  where lineNumberCode in (select lineNumberCode from jobpost group by lineNumberCode)
+                ) t1
+                 join bidjob b on b.job_id = t1.id
+                 join jobpost j on j.id = b.job_id
+                where b.awarded = 1
+                group by t1.lineNumber
+                union
+                select t1.id, t1.name, j.price job_price, sum(b.price) as awarded_price, (j.price - sum(b.price)) profit, t1.created
+                from (
+                  select id, name, lineNumber, created
+                  from jobpost
+                  where lineNumberCode = ''
+                ) t1
+                 join bidjob b on b.job_id = t1.id
+                 join jobpost j on j.id = b.job_id
+                where b.awarded = 1
+                group by t1.id
+                ) t1;";
+
+        $query = $this->db->query($sql);
+
+        return $query->row();
+    }
+
+    public function get_line_number_info($line_number)
+    {
+        $sql = "SELECT j.id AS job_id, b.id AS bidjob_id, j.name AS job_name, b.trans_id, j.price AS job_price, b.price AS awarded_price FROM jobpost j JOIN bidjob b ON b.job_id = j.id WHERE j.lineNumberCode = '{$line_number}' AND b.awarded = 1 AND b.is_done = 1";
+        return $this->db->query($sql);
+    }
+}
+?>

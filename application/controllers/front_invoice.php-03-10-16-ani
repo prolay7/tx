@@ -1,0 +1,171 @@
+<?php	error_reporting(0);
+class Front_Invoice extends CI_Controller {
+	function __construct()
+	{
+		parent::__construct();
+		$this->load->helper(array('form', 'url'));
+		$this->load->model('front_invoice_model');
+	}
+
+	
+	function index()
+	{  if(!$this->session->userdata('is_translator')){
+				$this->load->view('translator/vwLogin');	
+			} else {
+        $filter_session_data="";
+        //all the posts sent by the view      
+        $search_string = $this->input->post('search_string');  
+	    $stage = $this->input->post('job_stage');     
+        $order = $this->input->post('order'); 
+        $order_type = $this->input->post('order_type'); 
+
+        //pagination settings
+        $config['per_page'] = 10;
+        $config['base_url'] = base_url().'translator/invoice/';
+        $config['use_page_numbers'] = TRUE;
+        $config['num_links'] = 20;
+        $config['full_tag_open'] = '<ul>';
+        $config['full_tag_close'] = '</ul>';
+        $config['num_tag_open'] = '<li>';
+        $config['num_tag_close'] = '</li>';
+        $config['cur_tag_open'] = '<li class="active"><a>';
+        $config['cur_tag_close'] = '</a></li>';
+
+        //limit end
+        $page = $this->uri->segment(3);
+       // echo 'seg='.$page;
+		//die;
+        //math to get the initial record to be select in the database
+        $limit_end = ($page * $config['per_page']) - $config['per_page'];
+        if ($limit_end < 0){
+            $limit_end = 0;
+        } 
+
+        //if order type was changed
+        if($order_type){
+            $filter_session_data['order_type'] = $order_type;
+        }
+        else{
+            //we have something stored in the session? 
+            if($this->session->userdata('order_type')){
+                $order_type = $this->session->userdata('order_type');    
+            }else{
+                //if we have nothing inside session, so it's the default "Asc"
+                $order_type = 'Asc';    
+            }
+        }
+        //make the data type var avaible to our view
+        $data['order_type_selected'] = $order_type;        
+
+
+        //we must avoid a page reload with the previous session data
+        //if any filter post was sent, then it's the first time we load the content
+        //in this case we clean the session filter data
+        //if any filter post was sent but we are in some page, we must load the session data
+
+        //filtered && || paginated
+        if( ($search_string !== false || $stage != false || $this->uri->segment(4) == true) && $order !== false){ 
+			
+			 if($search_string){
+                $filter_session_data['search_string_selected'] = $search_string;
+            }else{
+                $search_string = $this->session->userdata('search_string_selected');
+            }
+            $data['search_string_selected'] = $search_string;
+			
+			if($stage){
+                $filter_session_data['stage_selected'] = $stage;
+            }else{
+                $stage = $this->session->userdata('stage_selected');
+            }
+            $data['stage_selected'] = $stage;
+			
+
+            if($order){
+                $filter_session_data['order'] = $order;
+            }
+            else{
+                $order = $this->session->userdata('order');
+            }
+            $data['order'] = $order;
+
+            //save session data into the session
+            $this->session->set_userdata($filter_session_data);
+
+            $data['count_invoice']= $this->front_invoice_model->count_invoice($search_string, $stage, $order);
+            $config['total_rows'] = $data['count_invoice'];
+
+			/*echo 'search_string= '.$search_string; echo '<br/>';
+			echo 'stage= '.$stage; echo '<br/>';
+			echo 'order= '.$order; echo '<br/>';
+*/
+			
+            //fetch sql data into arrays
+               if($search_string && $stage=='' && $order==''){
+        $data['invoice'] = $this->front_invoice_model->get_invoice($search_string,'','', $order_type, $config['per_page'],$limit_end);               }
+				
+                if($order && $search_string=='' && $stage==''){
+        $data['invoice'] = $this->front_invoice_model->get_invoice('','', $order, $order_type, $config['per_page'],$limit_end);        
+                }
+				
+				
+				 if($stage && $order=='' && $search_string==''){
+          $data['invoice'] = $this->front_invoice_model->get_invoice('',$stage,'', $order_type, $config['per_page'],$limit_end);        
+                }
+				
+			 
+				
+           if($search_string && $stage && $order==''){
+ $data['invoice'] = $this->front_invoice_model->get_invoice($search_string,$stage,'', $order_type, $config['per_page'],$limit_end);               }
+ 
+           if($search_string && $stage=='' && $order){
+ $data['invoice'] = $this->front_invoice_model->get_invoice($search_string,'',$order, $order_type, $config['per_page'],$limit_end);               }
+ 
+            if($search_string=='' && $stage && $order){
+ $data['invoice'] = $this->front_invoice_model->get_invoice('',$stage,$order, $order_type, $config['per_page'],$limit_end);               }
+ 
+ 
+				
+          if($search_string && $order && $stage){
+          $data['invoice'] = $this->front_invoice_model->get_invoice($search_string,$stage,$order, $order_type, $config['per_page'],$limit_end);        
+                }
+
+        }
+		
+		
+		else{ //echo "hello else";
+
+            //clean filter data inside section;
+            $filter_session_data['search_string_selected'] = null;
+			$filter_session_data['stage_selected'] = null;
+            $filter_session_data['order'] = null;
+            $filter_session_data['order_type'] = null;
+            $this->session->set_userdata($filter_session_data);
+
+            //pre selected options
+            $data['search_string_selected'] = '';
+			$data['stage_selected'] = '';
+            $data['order'] = 'id';
+
+            //fetch sql data into arrays
+            $data['count_invoice']= $this->front_invoice_model->count_invoice();
+            $data['invoice'] = $this->front_invoice_model->get_invoice('','', '', $order_type, $config['per_page'],$limit_end);   
+            $config['total_rows'] = $data['count_invoice'];
+
+        }//!isset($manufacture_id) && !isset($search_string) && !isset($order)
+
+        //initializate the panination helper 
+        $this->pagination->initialize($config);   
+
+        //load the view
+        $this->load->view('translator/translators/vwInvoice',$data);
+		}}
+
+ 
+
+
+
+
+	
+
+}

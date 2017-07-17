@@ -1,0 +1,242 @@
+<?php
+$this->load->view('admin/includes/vwHeader');
+?>
+
+
+		<!-- /section:basics/navbar.layout -->
+		<div class="main-container" id="main-container">
+			<script type="text/javascript">
+				try{ace.settings.check('main-container' , 'fixed')}catch(e){}
+			</script>
+
+			<!-- #section:basics/sidebar -->
+			<?php
+				$this->load->view('admin/includes/vwSidebar-left');
+			?>
+
+			<!-- /section:basics/sidebar -->
+			<div class="main-content">
+				<div class="main-content-inner">
+					<!-- #section:basics/content.breadcrumbs -->
+					<div class="breadcrumbs" id="breadcrumbs">
+						<script type="text/javascript">
+							try{ace.settings.check('breadcrumbs' , 'fixed')}catch(e){}
+						</script>
+						<ul class="breadcrumb">
+							<li>
+								<i class="ace-icon fa fa-home home-icon"></i>
+								<a href="#">Home</a>
+							</li>
+
+							<li>
+								<a href="#">Job</a>
+							</li>
+							<li class="active">Edit Job</li>
+						</ul><!-- /.breadcrumb -->
+
+						<!-- #section:basics/content.searchbox -->
+						<!--<div class="nav-search" id="nav-search">
+							<form class="form-search">
+								<span class="input-icon">
+									<input type="text" placeholder="Search ..." class="nav-search-input" id="nav-search-input" autocomplete="off" />
+									<i class="ace-icon fa fa-search nav-search-icon"></i>
+								</span>
+							</form>
+						</div>--><!-- /.nav-search -->
+
+						<!-- /section:basics/content.searchbox -->
+					</div>
+
+					<!-- /section:basics/content.breadcrumbs -->
+					<div class="page-content">
+						<!-- #section:settings.box -->
+                        <?php
+							$this->load->view('admin/includes/vwSidebar-settings');
+						?>
+						<!-- /.ace-settings-container -->
+						
+						<!-- /section:settings.box -->
+						<div class="page-header">
+							<h1>
+								Edit Job					
+							</h1>
+						</div><!-- /.page-header -->
+                         <?php if (validation_errors()!="") { ?>
+                         <div class="alert alert-danger">
+                            <button type="button" class="close" data-dismiss="alert">
+                                <i class="ace-icon fa fa-times"></i>
+                            </button>
+                            <p> <?php echo validation_errors(); ?> </p>
+                        </div>
+						 <?php } ?>
+                         
+                  
+                    
+                           <?php if($this->session->flashdata('success_message'))
+							    { ?>
+								 <div class="alert alert-block alert-success">	
+								 <button type="button" class="close" data-dismiss="alert">
+                                 <i class="ace-icon fa fa-times"></i>
+                                 </button>	
+									
+                                <p><?php echo $this->session->flashdata('success_message'); ?></p>
+                                 </div>
+								
+                               <?php 
+							   } 
+							  ?>
+                              
+                                  <?php if($this->session->flashdata('error_message'))
+							    { ?>
+								 <div class="alert  alert-danger">	
+								 <button type="button" class="close" data-dismiss="alert">
+                                 <i class="ace-icon fa fa-times"></i>
+                                 </button>	
+									
+                                <p><?php echo $this->session->flashdata('error_message'); ?></p>
+                                 </div>
+								
+                               <?php 
+							   } 
+							  ?>
+                    
+                    
+                        
+						<div class="row">
+							
+                            
+                            <div class="col-xs-12">
+                            
+        
+                                    <?php 								
+			$attributes = array('class' => 'form-registration', 'id'=>'admin-edit', 'enctype' => 'multipart/form-data'); 
+			echo form_open('admin_jobpost/editprofile/'.$fetch->id,$attributes); 										
+									?>
+            <div class="form-group" style="padding-top:30px; overflow: hidden;">
+                <label class="col-sm-3 control-label no-padding-right" for="form-field-1">Name* </label>
+                <div class="col-sm-9">
+                    <input name="job_title" id="job_title" class="form-control col-xs-10 col-sm-5 validate[required]"  type="text" value="<?php echo $fetch->name; ?>">
+                </div>
+            </div>
+            
+            <div class="form-group" style="overflow:hidden">
+                <label class="col-sm-3 control-label no-padding-right" for="form-field-1">Alias*</label>
+                <div class="col-sm-9">
+                    <input name="job_alias" id="job_alias" class="form-control col-xs-10 col-sm-5 validate[required]"  type="text" value="<?php echo $fetch->alias; ?>">
+                </div>
+            </div>
+            
+                 <div class="form-group" style="overflow:hidden">
+                <label class="col-sm-3 control-label no-padding-right" for="form-field-1">Price*</label>
+                <div class="col-sm-9">
+<input name="job_price" id="job_price" class="form-control col-xs-10 col-sm-5"  type="text" value="<?php echo $fetch->price; ?>" >
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label class="col-sm-3 control-label no-padding-right" for="form-field-1">Description*</label>
+                <div class="col-sm-9">
+                <textarea  name="job_description" id="editor" class="validate[required]">
+                 <?php echo $fetch->description; ?>
+                </textarea>
+                </div>
+            </div>
+            <?php 
+			 $sql=" SELECT * FROM `languages` ";
+			 $query=$this->db->query($sql);
+			 $Language_fetch=$query->result();			
+			?>
+         <?php if($fetch->file!= "") { ?>
+                                    <div class="form-group">
+										<label class="col-sm-3 control-label no-padding-right" for="form-field-1"> Uploaded File :                                        </label>
+
+										<div class="col-sm-9">
+                            <a href="<?php echo base_url(); ?>uploads/jobpost/<?php echo $fetch->file; ?>" class="btn btn-success" target="_blank"> <?php echo $fetch->file; ?></a>
+										</div>
+									</div>
+            <input type="hidden" name="prefile" size="20" class="form-control col-xs-10 col-sm-5" value="<?php echo $fetch->file; ?>" />
+                                    
+                                    <?php } //else { ?>
+                                    <div class="form-group">
+										
+                              <label class="col-sm-3 control-label no-padding-right" for="form-field-1"> Select File : </label>                                    <div class="col-sm-9">
+                      <input type="file" name="userfile" size="20" class="form-control col-xs-10 col-sm-5 validate[required]">
+										</div>
+									</div>
+                                    
+                                    
+                <div class="form-group" style="overflow:hidden">
+                <label class="col-sm-3 control-label no-padding-right" for="form-field-1">Language*</label>
+                <div class="col-sm-9">
+             <select name="job_language" class="form-control col-xs-10 col-sm-5 validate[required]" >
+              <option value=""> Select Language </option>
+                  <?php foreach($Language_fetch as $row) {?>
+     <option value="<?php echo $row->id;?>" <?php if($fetch->language==$row->id){echo "selected";} ?> ><?php echo $row->name;?></option>
+                    <?php }?>
+							
+			 </select>
+               </div>
+            </div>
+            
+                           
+            
+          <div class="form-group">
+                <label class="col-sm-3 control-label no-padding-right" >Status*: </label>
+                <div class="col-sm-9">  
+                     
+                      
+                 <select name="job_status" class="form-control col-xs-10 col-sm-5 validate[required]" >
+                            <option value=""> Select Status </option>
+							<option value="1" <?php if($fetch->status==1){echo "selected";} ?> >Active</option>
+							<option value="0" <?php if($fetch->status==0){echo "selected";} ?>>Inactive</option>
+			     </select>
+                        
+              </div>
+            </div>
+         
+                 
+           
+             <div class="clearfix form-actions">
+										<div class="col-md-offset-3 col-md-9">
+											<button class="btn btn-info" type="submit">
+												<i class="ace-icon fa fa-check bigger-110"></i>
+												Submit
+											</button>
+
+											&nbsp; &nbsp; &nbsp;
+											<button class="btn" type="reset">
+												<i class="ace-icon fa fa-undo bigger-110"></i>
+												Reset
+											</button>
+										</div>
+									</div>
+                
+               
+
+            <?php echo form_close(); ?>
+            
+       
+
+								<!-- PAGE CONTENT ENDS -->
+							</div>
+                            
+                            
+						</div><!-- /.row -->
+					</div><!-- /.page-content -->
+				</div>
+			</div><!-- /.main-content -->
+		</div><!-- /.main-container -->
+<!-- page specific plugin ck editor scripts -->
+<link rel="stylesheet" href="<?php echo HTTP_ASSETS_PATH_ADMIN; ?>ckeditor/samples/css/samples.css" />
+<link rel="stylesheet" href="<?php echo HTTP_ASSETS_PATH_ADMIN; ?>ckeditor/samples/toolbarconfigurator/lib/codemirror/neo.css" />
+<script src="<?php echo HTTP_ASSETS_PATH_ADMIN; ?>ckeditor/ckeditor.js"></script>
+<script src="<?php echo HTTP_ASSETS_PATH_ADMIN; ?>ckeditor/samples/js/sample.js"></script>
+<script>
+    initSample();
+</script>
+
+
+
+<?php
+$this->load->view('admin/includes/vwFooter');
+?>

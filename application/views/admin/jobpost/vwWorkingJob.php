@@ -1,0 +1,409 @@
+<?php
+$this->load->view('admin/includes/vwHeader');
+$adminID=$this->session->userdata('admin_id');
+?>
+
+
+		<!-- /section:basics/navbar.layout -->
+		<div class="main-container" id="main-container">
+			<script type="text/javascript">
+				try{ace.settings.check('main-container' , 'fixed')}catch(e){}
+			</script>
+
+			<!-- #section:basics/sidebar -->
+			<?php
+				$this->load->view('admin/includes/vwSidebar-left');
+			?>
+
+			<!-- /section:basics/sidebar -->
+			<div class="main-content">
+				<div class="main-content-inner">
+					<!-- #section:basics/content.breadcrumbs -->
+					<div class="breadcrumbs" id="breadcrumbs">
+						<script type="text/javascript">
+							try{ace.settings.check('breadcrumbs' , 'fixed')}catch(e){}
+						</script>
+
+						<ul class="breadcrumb">
+							<li>
+								<i class="ace-icon fa fa-home home-icon"></i>
+								<a href="#">Home</a>
+							</li>
+
+							<li>
+								<a href="#">Review Job</a>
+							</li>
+							<li class="active">Working Job List</li>
+						</ul><!-- /.breadcrumb -->
+
+						<!-- #section:basics/content.searchbox -->
+						<!--<div class="nav-search" id="nav-search">
+							<form class="form-search">
+								<span class="input-icon">
+									<input type="text" placeholder="Search ..." class="nav-search-input" id="nav-search-input" autocomplete="off" />
+									<i class="ace-icon fa fa-search nav-search-icon"></i>
+								</span>
+							</form>
+						</div>--><!-- /.nav-search -->
+
+						<!-- /section:basics/content.searchbox -->
+					</div>
+
+					<!-- /section:basics/content.breadcrumbs -->
+					<div class="page-content">
+						<!-- #section:settings.box -->
+                        <?php
+							$this->load->view('admin/includes/vwSidebar-settings');
+						?>
+						<!-- /.ace-settings-container -->
+
+						<!-- /section:settings.box -->
+						<div class="page-header">
+							<h1>
+								Review Job
+								<small>
+									<i class="ace-icon fa fa-angle-double-right"></i>
+									View Working Job List
+								</small>
+							</h1>
+						</div><!-- /.page-header -->
+
+						<div class="row">
+							<div class="col-xs-12">
+								<!-- PAGE CONTENT BEGINS -->
+
+                               <?php if($this->session->flashdata('success_message'))
+							    { ?>
+								 <div class="alert alert-block alert-success">
+								 <button type="button" class="close" data-dismiss="alert">
+                                 <i class="ace-icon fa fa-times"></i>
+                                 </button>
+
+                                <p><?php echo $this->session->flashdata('success_message'); ?></p>
+                                 </div>
+
+                               <?php
+							   }
+							  ?>
+
+                                  <?php if($this->session->flashdata('error_message'))
+							    { ?>
+								 <div class="alert alert-block alert-danger">
+								 <button type="button" class="close" data-dismiss="alert">
+                                 <i class="ace-icon fa fa-times"></i>
+                                 </button>
+
+                                <p><?php echo $this->session->flashdata('error_message'); ?></p>
+                                 </div>
+
+                               <?php
+							   }
+							  ?>
+
+								<div>
+                                    <div class="clearfix">
+                                        <div class="pull-right tableTools-container"></div>
+                                    </div>
+                                    <div class="table-header">
+                                        Results for "Working Job List"
+                                    </div>
+                                    <div class="clearfix">
+                                        <div class="pull-right tableTools-container"></div>
+                                    </div>
+                                    <table id="dynamic-table" class="table table-striped table-bordered table-hover">
+                                                                        <thead>
+                                                                            <tr> <th class="center">Job Title</th>
+                                                                                 <th class="center">Translator</th>
+                                                                                 <th class="center">Proposal</th>
+                                                                                 <th class="center">Time</th>
+                                                                                  <th class="center">Message</th>
+                                                                                 <th class="center">Price</th>
+                                                                                 <th class="center">Awarded Date</th>
+                                                                                <th class="center">Status</th>
+                                                                                 <th>Details</th>
+
+                                                                            </tr>
+                                                                        </thead>
+
+                                                                        <tbody>
+                                                                        <style type="text/css">
+                                											.order_by_cls {
+                                												display:none;
+                                											}
+
+
+                                											.stage
+                                											{
+                                												display:none;
+                                											}
+                                										</style>
+                                                                    <?php
+                                									//$job_id= $this->uri->segment(3);
+                                									$attributes = array('class' => 'form-inline reset-margin', 'id' => 'myform');
+                                									//save the columns names in a array that we will use as filter
+                                									$options_category = array();
+                                									//echo '<pre>'; print_r($category);
+
+                                                                    if (count($workingjob)) {
+                                                                        foreach ($workingjob as $array) {
+                                                                            foreach ($array as $key => $value) {
+                                                                                $options_category[$key] = $key;
+                                                                            }
+
+                                                                            break;
+                                                                        }
+                                                                    }
+
+
+                                								    echo form_open('admin_review/working/', $attributes);
+                                									?>
+
+
+
+                                                                    <div class="stage">
+                                                                    <select name="job_stage" class=" col-sm-2 validate[required]" >
+                                                                    <option value=""> Select Stage </option>
+
+                                                                    <option value="1" <?php if($stage_selected=='1'){echo 'selected';} ?> >Working</option>
+                                                                    <option value="2" <?php if($stage_selected=='2'){echo 'selected';} ?>>Completed</option>
+                                                                    </select>
+                                                                    </div>
+
+
+
+                                										<?php
+                                									//$opts = 'placeholder="Job Title/Translator First Name or Last Name/Proposal/Time/Price"';
+                                									//echo form_input('search_string', $search_string_selected,$opts,'style="width: 400px;height: 26px;"');
+
+                                									 $datai = array(
+                                                                           'name'        => 'search_string',
+                                										   'placeholder' => 'Enter Job Title/Line Number',
+                                                                           'value'          =>$search_string_selected,
+                                                                           'style'       => 'width:450px;height:30px;'
+                                                                                 );
+                                								  echo form_input($datai);
+
+                                								//echo form_label('Order by:', 'order');
+                                								echo form_dropdown('order', $options_category, $order, 'class="span2 order_by_cls"');
+
+                                							   $data_submit= array('name' => 'mysubmit', 'class' => 'btn btn-primary btn-sm', 'value' => 'Go');
+
+                                								$options_order_type = array('Asc' => 'Asc', 'Desc' => 'Desc');
+                                					echo form_dropdown('order_type', $options_order_type, $order_type_selected, 'class="span1 order_by_cls"');
+                                								echo '&nbsp;&nbsp;'.form_submit($data_submit).'&nbsp;&nbsp;';
+                                                                echo form_close();
+
+                                                                   ?>
+                                       <a href="<?php base_url().'dashboard/index/'; ?>" class="btn btn-info btn-reser btn-sm" >Reset</a>
+                                                                    <div class="clearfix">
+                                                                        <div class="pull-right tableTools-container"></div>
+                                                                    </div>
+                                                                 <?php
+
+
+
+                                											if (count($workingjob))
+                                											{
+
+                                                                            foreach($workingjob as $key => $val){
+                                											// echo '<pre>'; print_r($val);die;
+
+                                											$translator_id=$val['trans_id'];
+                                											$sql="select * from `translator` where `id`='$translator_id'";
+                                											$query=mysql_query($sql);
+                                											$fetch=mysql_fetch_array($query);
+                                											$trans_name=$fetch['first_name'].'&nbsp;'.$fetch['last_name'];
+
+                                											$job_id=$val['job_id'];
+                                											$jobsql  = "SELECT j.name, j.alias, j.jobDone, bd.is_completed ";
+                                                                            $jobsql .= "FROM `jobpost` j ";
+                                                                            $jobsql .= " LEFT JOIN bidjob b ON b.job_id = j.id ";
+                                                                            $jobsql .= " LEFT JOIN bidjob_details bd ON bd.bidjob_id = b.id ";
+                                                                            $jobsql .= "WHERE j.`id`='$job_id'";
+                                                                            $jobsql .= " AND b.id='".$val['id']."'";
+
+                                											// $jobquery=mysql_query($jobsql);
+                                											// $jobfetch=mysql_fetch_array($jobquery);
+
+                                                                            $jobquery = $this->db->query($jobsql);
+                                                                            $jobfetch = $jobquery->result_array();
+
+                                                                            // die($jobsql);
+                                                                            // echo '<pre>'; print_r($jobfetch);
+
+                                											$job_title=$jobfetch[0]['name'];
+                                											$job_alias=$jobfetch[0]['alias'];
+                                                                            ?>
+                                                                            <tr>
+                                                                            <td>
+
+
+                                                                            <a href="<?php echo base_url(); ?>admin_review/viewsummary/<?php echo $val['job_id']; ?>" target="_blank" ><?php echo $job_title; ?>&nbsp;/&nbsp;<?php echo $val['lineNumberCode'] ?></a>
+                                                                            </td>
+                                                                            <td><a href="<?php echo base_url().'admin_translators/edittranslator/'.$val['trans_id']; ?>" target="_blank" ><?php echo $trans_name; ?></a></td>
+                                                                            <td>
+
+                                											<?php
+                                											if(strlen($val['proposal'])>75)
+                                											{
+                                											echo substr($val['proposal'],0,75).'...';
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                            echo $val['proposal'];
+                                                                            }
+                                                                            ?>
+
+                                                                            </td>
+                                                                            <?php $time=$val['time_need'];
+                                										   $time= $time/1440;
+                                										   ?>
+
+
+                                                                            <td><?php echo  $time; ?>&nbsp;Day(s)
+
+                                                                            <td>
+                                                                                <a class="btn btn-info" href="<?php echo base_url(); ?>chat-box/?bid_id=<?php echo $val['id'];?>&job_id=<?php echo $val['job_id'] ?>&trans_id=<?php echo $val['trans_id'];  ?>&type=admin&ciadminId=<?php echo $adminID; ?>" target="_blank">
+                                                                                    &nbsp;&nbsp;<i class="fa fa-envelope"></i>&nbsp;Chat &nbsp;&nbsp;&nbsp;&nbsp;
+                                                                                </a>
+                                                                                <br />
+                                                                                <?php // if($jobfetch[0]['jobDone'] == 1 or $jobfetch[0]['is_completed'] == 1) { ?>
+                                                                                <?php if($val['is_done'] == 0 and $val['is_rated'] == 1) { ?>
+                                                                                	<span style ="color: GREEN">Check if Really Done</span>
+                                                                                <?php } ?>
+                                                                            </td>
+
+                                                                            <td>$<?php echo $val['price']; ?></td>
+                                                                            <td> <?php echo date('m-d-Y',strtotime($val['award_date'])); ?> </td>
+
+                                                                            <td>
+                                                                                <?php
+                                                                                // echo '<pre>'; print_r($val); echo '</pre>';
+                                                                                // echo "***DEBUG***<br/> stage: {$val['stage']}, done: {$val['is_done']}, rated: {$val['is_rated']}, admin notif {$val['admin_notif']}<br/>";
+
+                                                                                $sql = "SELECT id FROM bidjob_details WHERE bidjob_id = {$val['id']}";
+                                                                                $query = $this->db->query($sql);
+                                                                                if ($query->num_rows()) {
+                                                                                    $row = $query->row();
+                                                                                    $bidjob_details_id = $row->id;
+                                                                                } else {
+                                                                                    $bidjob_details_id = $val['id'];
+                                                                                }
+                                                                                ?>
+
+                                                                                <?php if ($val['stage'] == 1 and $val['is_done'] == 1 and $val['is_rated'] == 0 and $val['admin_notif'] == 1) { ?>
+                                                                                <button type="button" class="btn btn-danger toggle-admin-complete" data-id="<?php echo $bidjob_details_id ?>" data-jobid="<?php echo $val['job_id'] ?>" aria-haspopup="true" aria-expanded="false">Working</button>
+                                                                                <?php } else { ?>
+                                                                                <!--<a href="<?php echo base_url(); ?>chat-box/?bid_id=<?php echo $val['id'];?>&job_id=<?php echo $val['job_id'] ?>&trans_id=<?php echo $val['trans_id'];  ?>&type=admin&ciadminId=<?php echo $adminID ?>&adminnotif=1" target="_blank" class="btn btn-danger " aria-haspopup="true" aria-expanded="false">Working</a>-->
+                                                                                    <a href="<?php echo base_url(); ?>chat-box/?bid_id=<?php echo $val['id'];?>&job_id=<?php echo $val['job_id'] ?>&trans_id=<?php echo $val['trans_id'];  ?>&type=admin&ciadminId=<?php echo $adminID; ?>&modal_trigger=1" target="_blank" class="btn btn-danger " aria-haspopup="true" aria-expanded="false">Working</a>
+																				<?php } ?>
+                                                                            </td>
+
+                                                                            <td>
+                                                                                <a class="btn btn-success" href="<?php echo base_url(); ?>admin_awardjob/viewawardjob/<?php echo $val['id']; ?>"> View </a>
+                                                                            </td>
+                                                                          </tr>
+                                                                            <?php
+                                											}
+                                											}
+                                											else
+                                											{ ?>
+                                                                            <tr><td colspan="9" align="center">No Working Jobs Found!</td></tr>
+                                                                            <?php
+
+                                											}
+
+                                                                        ?>
+
+                                                                        </tbody>
+                                                                    </table>
+
+																	<?php if ($this->pagination->create_links()) { ?>
+																	<div class="pagination"><?php echo $this->pagination->create_links() ?></div>
+																	<?php } ?>
+
+                                </div>
+                               <button class="btn btn-info btn-sm" onclick="goBack()">Go Back</button>
+								<!-- PAGE CONTENT ENDS -->
+							</div><!-- /.col -->
+						</div><!-- /.row -->
+					</div><!-- /.page-content -->
+				</div>
+			</div><!-- /.main-content -->
+		</div><!-- /.main-container -->
+
+        <div id="dialog-admin-confirm" title="Verify" style="display:none;">
+          <p><span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span>Are you sure the proofreader has successfully reviewed the documents?</p>
+        </div>
+
+
+<script type="text/javascript">
+function alert(id)
+{
+    del =confirm("Are you sure to delete permanently?");
+    if (del!=true) {
+        return false;
+    } else {
+        window.location.href="<?php echo base_url(); ?>admin_jobpost/delete/"+id;
+	}
+}
+function confir(id, job_id, no_prompt)
+{
+    if (no_prompt) {
+        window.location.href="<?php echo base_url(); ?>admin_review/workcomplete/"+id+"/"+job_id;
+    } else {
+        con=confirm("Are you sure to mark as Completed this awarded project?");
+        if (con!=true) {
+            return false;
+        } else {
+            window.location.href="<?php echo base_url(); ?>admin_review/workcomplete/"+id+"/"+job_id;
+    	}
+    }
+}
+</script>
+<script type="text/javascript">
+function reload()
+{
+<?php //$this->session->unset_userdata('search_string_selected'); ?>
+window.location.href="<?php echo base_url().'admin_review/working/'?>";
+}
+</script>
+<script>
+function goBack() {
+    window.history.back();
+}
+</script>
+<?php $this->load->view('admin/includes/vwFooter'); ?>
+<link rel="stylesheet" href="<?php echo HTTP_ASSETS_PATH_ADMIN; ?>css/uploadfilemulti.css" />
+<link rel="stylesheet" href="<?php echo HTTP_ASSETS_PATH_ADMIN; ?>css/jquery-ui-1.12.1.min.css" />
+<link rel="stylesheet" href="<?php echo HTTP_ASSETS_PATH_ADMIN; ?>css/select2.css" />
+
+<script src="<?php echo HTTP_ASSETS_PATH_ADMIN; ?>js/jquery-1.8.2.min.js"></script>
+<script src="<?php echo HTTP_ASSETS_PATH_ADMIN; ?>js/jquery-ui.custom.js"></script>
+<script src="<?php echo HTTP_ASSETS_PATH_ADMIN; ?>js/jquery-ui.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.6/moment.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.37/js/bootstrap-datetimepicker.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function () {
+    $(document).on('click', '.toggle-admin-complete', function () {
+        var bid_details_id = $(this).data('id');
+        var job_id = $(this).data('jobid');
+
+        $('#dialog-admin-confirm').dialog({
+            resizable: false,
+            height: "auto",
+            width: 500,
+            modal: false,
+            buttons: {
+                'Yes': function () {
+                    $(this).dialog('close');
+                    window.location.href="<?php echo base_url(); ?>admin_review/workcomplete/"+bid_details_id+"/"+job_id;
+                },
+                'No': function () {
+                    $(this).dialog('close');
+                }
+            }
+        });
+    });
+});
+</script>

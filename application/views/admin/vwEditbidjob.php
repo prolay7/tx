@@ -1,0 +1,256 @@
+<?php
+$this->load->view('admin/includes/vwHeader');
+?>
+
+<!-- /section:basics/navbar.layout -->
+		<div class="main-container" id="main-container">
+			<script type="text/javascript">
+				try{ace.settings.check('main-container' , 'fixed')}catch(e){}
+			</script>
+           
+			<!-- #section:basics/sidebar -->
+			<?php
+				$this->load->view('admin/includes/vwSidebar-left');
+			?>
+
+			<!-- /section:basics/sidebar -->
+			<div class="main-content">
+				<div class="main-content-inner">
+					<!-- #section:basics/content.breadcrumbs -->
+					<div class="breadcrumbs" id="breadcrumbs">
+						<script type="text/javascript">
+							try{ace.settings.check('breadcrumbs' , 'fixed')}catch(e){}
+						</script>
+
+						<ul class="breadcrumb">
+							<li>
+								<i class="ace-icon fa fa-home home-icon"></i>
+								<a href="#">Home</a>
+							</li>
+
+							<li>
+								<a href="#">Bid Job</a>
+							</li>
+							<li class="active">View Bid Job</li>
+						</ul><!-- /.breadcrumb -->
+
+						<!-- #section:basics/content.searchbox -->
+						<!--<div class="nav-search" id="nav-search">
+							<form class="form-search">
+								<span class="input-icon">
+									<input type="text" placeholder="Search ..." class="nav-search-input" id="nav-search-input" autocomplete="off" />
+									<i class="ace-icon fa fa-search nav-search-icon"></i>
+								</span>
+							</form>
+						</div>--><!-- /.nav-search -->
+
+						<!-- /section:basics/content.searchbox -->
+					</div>
+
+					<!-- /section:basics/content.breadcrumbs -->
+					<div class="page-content">
+						<!-- #section:settings.box -->
+						<!-- /.ace-settings-container -->
+						<?php
+							$this->load->view('admin/includes/vwSidebar-settings');
+						?>
+						<!-- /section:settings.box -->
+						<div class="page-header">
+							<h1>
+								Bid Job
+								<small>
+									<i class="ace-icon fa fa-angle-double-right"></i>
+									View Bid Job
+								</small>
+							</h1>
+						</div><!-- /.page-header -->
+
+						<div class="row">
+							<div class="col-xs-12">
+								<!-- PAGE CONTENT BEGINS -->
+                               <?php  if($this->session->flashdata('flash_message')){
+								 	if($this->session->flashdata('flash_message') == 'try_another') { ?>
+                                    <div class="alert alert-block alert-danger">
+                                        <button type="button" class="close" data-dismiss="alert">
+                                            <i class="ace-icon fa fa-times"></i>
+                                        </button> 
+                                        <p> Alias name is not available. Try another. </p>
+                                    </div> <?php
+                                }} ?>
+                            
+                                <?php if (validation_errors()!="") { ?>
+                                     <div class="alert alert-danger">
+                                        <button type="button" class="close" data-dismiss="alert">
+                                            <i class="ace-icon fa fa-times"></i>
+                                        </button>
+                                        <p> <?php echo validation_errors(); ?> </p>
+                                    </div>
+                                <?php } ?>
+                                
+                                           <?php if($this->session->flashdata('success_message'))
+	  						    { ?>
+								 <div class="alert alert-block alert-success">	
+								 <button type="button" class="close" data-dismiss="alert">
+                                 <i class="ace-icon fa fa-times"></i>
+                                 </button>	
+									
+                                <p><?php echo $this->session->flashdata('success_message'); ?></p>
+                                 </div>
+								
+                               <?php 
+							   } 
+							  ?>
+                              
+                                  <?php if($this->session->flashdata('error_message'))
+							    { ?>
+								 <div class="alert  alert-danger">	
+								 <button type="button" class="close" data-dismiss="alert">
+                                 <i class="ace-icon fa fa-times"></i>
+                                 </button>	
+									
+                                <p><?php echo $this->session->flashdata('error_message'); ?></p>
+                                 </div>
+								
+                               <?php 
+							   } 
+							  ?>
+                              
+                            
+                            <?php 								
+			$attributes = array('class' => 'form-horizontal', 'id'=>'admin-edit', 'enctype' => 'multipart/form-data'); 
+			echo form_open('admin_jobpost/editbidjobprofile/'.$fetch->id,$attributes); 										
+									?>
+            <div class="form-group">
+                <label class="col-sm-3 control-label no-padding-right" for="form-field-1">Proposal </label>
+                <div class="col-sm-9">
+               <textarea name="proposal" id="editor" class="col-xs-10 col-sm-5 validate[required]"  readonly>
+               <?php echo $fetch->proposal; ?>
+               </textarea>
+                    
+                </div>
+            </div>
+        
+            
+            <div class="form-group">
+                <label class="col-sm-3 control-label no-padding-right" for="form-field-1">Price</label>
+                <div class="col-sm-9">
+                    <input name="price" id="price" class="col-xs-10 col-sm-5 validate[required]"  type="text" value="<?php echo $fetch->price; ?>" readonly>
+                </div>
+            </div>
+            
+             <div class="form-group">
+                <label class="col-sm-3 control-label no-padding-right" for="form-field-1">Time Needed(Hours)*</label>
+                <div class="col-sm-9">
+                    <input name="time_need" id="time_need" class="col-xs-10 col-sm-5 validate[required]"  type="text" value="<?php echo $fetch->time_need; ?>" readonly>
+                </div>
+            </div>
+            
+           
+         <?php if($fetch->file!= "") { ?>
+                                    <div class="form-group">
+										<label class="col-sm-3 control-label no-padding-right" for="form-field-1"> Uploaded File :                                        </label>
+
+										<div class="col-sm-9">
+                            <a href="<?php echo base_url(); ?>uploads/bidjobpost/<?php echo $fetch->file; ?>" class="btn btn-success" target="_blank">View File</a>
+										</div>
+									</div>
+            <input type="hidden" name="prefile" size="20" class="col-xs-10 col-sm-5" value="<?php echo $fetch->file; ?>" />
+                                    
+                                    <?php }  ?>
+                                    <div class="form-group">
+										
+                              <!--<label class="col-sm-3 control-label no-padding-right" for="form-field-1"> Select File : </label>                                    <div class="col-sm-9">
+                      <input type="file" name="userfile" id="userfile" size="20" class="col-xs-10 col-sm-5 ">
+										</div>
+									</div>-->
+       <div class="form-group">
+                <label class="col-sm-3 control-label no-padding-right" for="form-field-1">Bid Date</label>
+                <div class="col-sm-9">
+                    <input name="time" id="time" class="col-xs-10 col-sm-5 validate[required]"  type="text" value="<?php echo $fetch->created; ?>" readonly>
+                </div>
+            </div>
+                                      
+              <div class="form-group">
+               <?php if($fetch->awarded==1) {?>   
+                <label class="col-sm-3 control-label no-padding-right" >Stage*: </label>
+                <div class="col-sm-9">  
+                     
+                     
+                 <select name="stage" class="col-xs-10 col-sm-5 validate[required]" >
+							<option value="1" <?php if($fetch->stage==1){echo "selected";} ?>>Working</option>
+                            <option value="2" <?php if($fetch->stage==2){echo "selected";} ?>>Completed</option>
+			     </select>
+                    <?php } ?>    
+              </div>
+            </div>   
+          
+         
+                 
+           
+             <div class="clearfix form-actions">
+										<div class="col-md-offset-3 col-md-9">
+											<button class="btn btn-info" type="submit">
+												<i class="ace-icon fa fa-check bigger-110"></i>
+												Submit
+											</button>
+
+											&nbsp; &nbsp; &nbsp;
+											<button class="btn" type="reset">
+												<i class="ace-icon fa fa-undo bigger-110"></i>
+												Reset
+											</button>
+										</div>
+									</div>
+                
+               
+
+            <?php echo form_close(); ?> 
+                      
+                              
+                              
+                    
+                    <!-- PAGE CONTENT ENDS -->
+							</div><!-- /.col -->
+						</div><!-- /.row -->
+					</div><!-- /.page-content -->
+				</div>
+			</div><!-- /.main-content -->
+		</div><!-- /.main-container -->
+
+<!-- page specific plugin ck editor scripts -->
+<link rel="stylesheet" href="<?php echo HTTP_ASSETS_PATH_ADMIN; ?>ckeditor/samples/css/samples.css" />
+<link rel="stylesheet" href="<?php echo HTTP_ASSETS_PATH_ADMIN; ?>ckeditor/samples/toolbarconfigurator/lib/codemirror/neo.css" />
+<script src="<?php echo HTTP_ASSETS_PATH_ADMIN; ?>ckeditor/ckeditor.js"></script>
+<script src="<?php echo HTTP_ASSETS_PATH_ADMIN; ?>ckeditor/samples/js/sample.js"></script>
+
+
+<script>
+    initSample();
+</script>
+<script src="<?php echo HTTP_ASSETS_PATH_ADMIN; ?>js/jqueryn.js"></script>
+ <script>
+				$(document).ready(function() {
+                    $("#userfile").change(function (){
+					var filename = $('#userfile').val();
+										
+					var filename1 = filename.split('.');
+					
+					var filename2 = filename1.pop();
+					
+					var ext = filename2.toLowerCase();
+					
+					//var ext = $('#formID').val().split('.').pop().toLowerCase();
+					if($.inArray(ext, ['doc','xlc','docx','txt']) == -1) {
+						alert('Invalid file format!. Please select docx,xlc,doc or txt.');
+						$('#userfile').val('');
+					}
+					});
+				
+					});
+				
+                
+       </script>
+<?php
+$this->load->view('admin/includes/vwFooter');
+?>
+    

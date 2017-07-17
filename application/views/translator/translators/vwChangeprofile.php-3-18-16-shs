@@ -1,0 +1,342 @@
+<?php
+$this->load->view('vwHeader');
+?>
+<style>
+.transdrop{ width:100% !important;	
+}
+</style>
+ <link rel="stylesheet" href="<?php echo HTTP_ASSETS_PATH_ADMIN; ?>css/uploadfilemulti.css" />
+<!--<script src="<?php echo HTTP_ASSETS_PATH_ADMIN; ?>js/jquery-1.8.0.min.js"></script>-->
+<script src="<?php echo HTTP_ASSETS_PATH_ADMIN; ?>js/jquery.fileuploadmulti.min.js"></script>
+<div id="content">
+  <div id="title">
+    <h1 class="inner title-2">My Profile
+    <small>
+        <i class="ace-icon fa fa-angle-double-right"></i>
+        Edit Profile 
+    </small>
+      <ul class="breadcrumb-inner">
+        <li> <a href="<?php echo base_url()?>"><i class="ace-icon fa fa-home home-icon"></i>Home</a></li>
+        <li> <a href="<?php echo base_url()?>translator/changeprofile">Change Profile</a></li>
+      </ul>
+    </h1>
+  </div>
+  <div class="inner"> 
+    
+    <!-- Content Inner -->
+    <div class="content-inner"> 
+      
+      <!-- Content Center -->
+         <div class="content-center">
+         
+               <div class="block field-container odd box-1 hide">  
+
+        <!--<div id="contacts" class="block post-box box-1 contact-address">-->
+          <div class="block-content">
+            <div class="block background">
+          <h2 class="title-1">Edit Profile</h2>
+          <div class = "block-content">
+                 <?php if (validation_errors()!="") { ?>
+			 <div class="alert alert-danger">
+                <button type="button" class="close" data-dismiss="alert">
+                    <i class="ace-icon fa fa-times"></i>
+                </button>
+                <p> <?php echo validation_errors(); ?> </p>
+            </div>
+		<?php } ?>
+        
+        <?php if (isset($message_error) && $message_error!="") { ?>
+			 <div class="alert alert-danger">
+                <button type="button" class="close" data-dismiss="alert">
+                    <i class="ace-icon fa fa-times"></i>
+                </button>
+                <p> <?php echo $message_error; ?> </p>
+            </div>
+		<?php } ?>
+        
+        <?php if (isset($message_success) && $message_success!="") { ?>
+			 <div class="alert alert-block alert-success">
+				<button type="button" class="close" data-dismiss="alert">
+					<i class="ace-icon fa fa-times"></i>
+				</button>
+                <p> <?php echo $message_success; ?> </p>
+                
+            </div>
+		<?php } ?>
+        
+        
+        <?php if($this->session->flashdata('success_message')){ ?>
+        	<div class="alert alert-block alert-success">
+				<button type="button" class="close" data-dismiss="alert">
+					<i class="ace-icon fa fa-times"></i>
+				</button>
+                <p> <?php echo $this->session->flashdata('success_message'); ?> </p>
+               
+            </div>
+        <?php } ?>
+        
+        <?php if($this->session->flashdata('error_message')){ ?>
+        	<div class="alert alert-block alert-success">
+				<button type="button" class="close" data-dismiss="alert">
+					<i class="ace-icon fa fa-times"></i>
+				</button>
+                <p> <?php echo $this->session->flashdata('error_message'); ?> </p>
+            </div>
+        <?php } ?>
+          <?php 
+		$attributes = array('class' => 'form-registration', 'id'=>'changeprofile'); 
+		echo form_open('translator/myprofile', $attributes); 
+		?>
+           
+              <div id = "about">
+                <?php /*?><input title="Your Title" type="text" name="title" class="textfield2" placeholder="Title" onclick="this.value='';" onfocus="$(this).addClass('active');" onblur="$(this).removeClass('active');"/>
+                
+                <input title="Your alias" type="text" name="alias" class="textfield2" placeholder="Alias" onclick="this.value='';" onfocus="$(this).addClass('active');" onblur="$(this).removeClass('active');"/><?php */?>
+                                                                                  <label class="col-sm-4 control-label no-padding-right" for="form-field-1">Email(Username)<span class='error-label'>*</span></label>
+                  <input title="Your email address" type="email" name="email_address" class="form-control text-input" placeholder="Email address" onfocus="$(this).addClass('active');" onblur="$(this).removeClass('active');" value="<?php echo $results[0]['email_address']; ?>" readonly/>
+                                                                  <label class="col-sm-4 control-label no-padding-right" for="form-field-1">First Name<span class='error-label'>*</span></label>  
+                <input title="Your FirstName" type="text" name="first_name" class="form-control text-input validate[required] " placeholder="First Name"  onfocus="$(this).addClass('active');" onblur="$(this).removeClass('active');" value="<?php echo $results[0]['first_name']; ?>"/>
+                                                                  <label class="col-sm-4 control-label no-padding-right" for="form-field-1">Last Name<span class='error-label'>*</span></label>
+                   <input title="Your LastName" type="text" name="last_name" class="form-control  validate[required] text-input" placeholder="Last Name"  onfocus="$(this).addClass('active');" onblur="$(this).removeClass('active');" value="<?php echo $results[0]['last_name']; ?>"/>
+                   
+                                                                                <label class="col-sm-4 control-label no-padding-right" for="form-field-1">Location</label>
+                 <input title="Your Location" type="text" name="location" class="form-control text-input" placeholder="Location"  onfocus="$(this).addClass('active');" onblur="$(this).removeClass('active');" value="<?php echo $results[0]['location']; ?>"/>
+                 
+                              
+						<?php 
+						
+                    
+                        $view=explode("##",$results[0]['file']);
+                        array_pop($view);
+                        $num_of_file= count($view);
+						//echo  $num_of_file;
+						
+                        ?>
+                        
+                       
+                        <?php  if($results[0]['file']!= "") { 
+                        for ($i = 0; $i < $num_of_file; $i++){
+                        if($view[$i]!= "") {
+						 $vie = strstr($view[$i], '/');
+                		$str = ltrim($vie, '/');
+						if($str == ''){
+						$str = $view[$i];
+						}
+                       // echo $str;
+                        ?> 
+                                    <div class="form-group">
+										<label class="col-sm-3 control-label no-padding-right" for="form-field-1"> Uploaded File :                                        </label>
+
+										<div class="col-sm-9">
+                            <a href="<?php echo base_url(); ?>uploads/user/<?php echo $view[$i]; ?>" class="btn btn-success" target="_blank"><?php echo $str; ?></a>
+                             <a href="javascript:void(0);" class="btn btn-danger" onclick="removealert('<?php echo $results[0]['id']; ?>','<?php echo $view[$i]; ?>')">Remove File</a>
+										</div>
+									</div>
+            <input type="hidden" name="prefile" size="20" class="col-xs-10 col-sm-5" value="<?php echo $results[0]['file']; ?>" />
+			<input type="hidden" name="numberfile" id="numberfile" size="20" class="col-xs-10 col-sm-5" value="<?php echo $num_of_file; ?> " />                                   
+                                    <?php }}} ?>
+                    
+                    
+              
+                      <label class="col-sm-3 control-label no-padding-right" for="form-field-1">You should be able to upload up to 5 files                      </label>
+                 <!--  <input type="file" name="userfile[]" id="userfile" data-buttonName="btn-primary" multiple="multiple" >-->
+                   					<div class="form-group">
+                                    <div class="col-sm-9 col-sm-offset-3">
+                                    <div id="mulitplefileuploader">Upload</div>
+									<div id="status"></div>
+                                    <input type="hidden" name="totalFile" id="totalFile" value="" class="validate[required]" />
+                                    </div>
+							    </div>
+
+          
+          
+                <!-- <input title="Your Description" type="text" name="desc" class="textfield2" placeholder="Overview"  onfocus="$(this).addClass('active');" onblur="$(this).removeClass('active');" value="<?php echo $results[0]['desc']; ?>"/>-->
+                 
+         <label class="col-sm-4 control-label no-padding-right" for="form-field-1"> Select Language(Maximum 4)<span class='error-label'>*</span></label>
+                   <?php 
+						$sql=" SELECT * FROM `languages` ORDER BY name asc ";
+						$val=$this->db->query($sql);
+						$lang=$val->result_array();
+						//$sub[]=array;
+						for($k = 0; $k < count($lang); $k++){
+						$element = $lang[$k];
+						$myArr[$element[id]] = $element[name];
+						}
+						//echo "<pre>";print_r($myArr);
+						
+						$newArray = array();
+						foreach($myArr as $key1 => $value1){
+							foreach($myArr as $key2 => $value2){
+								if($value1 != $value2){
+									$newkey = $key1.'/'.$key2;
+									 $newvalue = $value1.' To '.$value2;
+									$newArray[$newkey] = $newvalue;
+								}
+							}
+						}
+						
+						$arrlanguage = $results[0]['language'];
+						$language = explode(",", $arrlanguage);
+						//echo '<pre>'; print_r($language);die;
+                        ?>
+						<select  name="language[]" id="language"    multiple="multiple" class="form-control transdrop validate[required,minListOptions[1],maxListOptions[4]] text-input">
+							<option value="">Select language</option>
+								<?php 
+							
+							foreach ($newArray as $key=>$lang1) { 
+							$inIds = "'".str_replace("/", "','", $lang1)."'";
+							$sql_lan="SELECT name FROM `languages` WHERE `name` IN(".$inIds.") ORDER BY name asc";
+							$val_lan=$this->db->query($sql_lan);
+							$lang=$val_lan->result_array();
+							 $lang2=$lang[0]['name'].' to '.$lang[1]['name'];
+							
+							?>
+							<option value="<?php echo $key; ?>" <?php if(in_array($key, $language)) { echo 'selected="selected"'; }?>><?php echo $lang1; ?></option>
+							<?php }  ?>
+						</select>
+                                
+              </div>
+             
+              <div id = "send">
+             <button class="btn btn-info" type="submit">
+            <i class="ace-icon fa fa-check bigger-110"></i>
+            Submit
+           </button>
+                <button class="btn btn-info" type="reset" >
+                        <i class="ace-icon fa fa-undo bigger-110"></i>
+                        Reset
+                    </button>
+              </div>
+           <?php echo form_close(); ?>
+          </div>
+        </div>
+            
+          </div>
+        </div>
+      </div>
+      <!-- /Content Center --> 
+      
+      <!-- Content Right -->
+       <div class="content-right">
+ 		<?php
+				$this->load->view('translator/includes/vwSidebar-left');
+			?>
+            </div>
+      <!-- /Content Right -->
+      
+      <div class="clear"></div>
+      <!-- Clear Line --> 
+      
+    </div>
+    <!-- /Content Inner --> 
+    
+  </div>
+</div>
+
+
+	
+        <!-- inline scripts related to this page -->
+		
+   <!-- page specific plugin ck editor scripts -->
+<link rel="stylesheet" href="<?php echo HTTP_ASSETS_PATH_ADMIN; ?>ckeditor/samples/css/samples.css" />
+<link rel="stylesheet" href="<?php echo HTTP_ASSETS_PATH_ADMIN; ?>ckeditor/samples/toolbarconfigurator/lib/codemirror/neo.css" />
+<script src="<?php echo HTTP_ASSETS_PATH_ADMIN; ?>ckeditor/ckeditor.js"></script>
+<script src="<?php echo HTTP_ASSETS_PATH_ADMIN; ?>ckeditor/samples/js/sample.js"></script>
+<script>
+    initSample();
+</script>
+
+      <script type="text/javascript">
+function removealert(id,file)
+{
+	
+    del =confirm("Are you sure to delete permanently?");
+    if(del!=true)
+    {
+        return false;
+    }
+	else
+	{
+	window.location.href="<?php echo base_url(); ?>translator/removefile1/"+id+"/"+file;
+	}
+}
+</script>
+<script>
+$(document).ready(function()
+{ 		var $fileUpload = $("#numberfile").val();
+		var file=parseInt($fileUpload);
+		
+		var num=5;
+		if (file!=0){
+         var filecount= num-file;
+		}else{
+			var filecount=5;
+		}
+		
+   
+	var settings = {
+	dataType: "html",
+	url: "<?php echo base_url().'translator/'.'uploads';?>",
+	method: "POST",
+	allowedTypes:"jpg,jpeg,docx,xls,xlsx,ppt,pptx,png,gif,doc,pdf,zip,tar,txt",
+	fileName: "myfile",
+	maxFileCount:filecount,
+	multiple: false,
+	onSuccess:function(files,data,xhr)
+	{	
+		var total=$('#totalFile').val();
+		$('#totalFile').val(total+data);
+		var total1=$('#totalFile').val();
+		var filePath = data;
+		var currentId= $(".remove-file-cls").attr("id");
+ 		 $('#upload-statusbar-'+currentId).find('.remove-file-cls').html("<a href='javascript:void(0);' onclick='return theFunction();' class='test' id='"+filePath+"'>Remove</a>");
+	},
+    afterUploadAll:function()
+    {
+        
+    },
+	onError: function(files,status,errMsg)
+	{		
+		$("#status").html("<font color='red'>Upload is Failed</font>");
+	}
+}
+
+$("#mulitplefileuploader").uploadFile(settings);
+
+});
+</script> 
+<script>
+$(document).ready(function(){
+
+});
+</script>
+<script type="text/javascript">
+  	function theFunction () {//alert("hello");
+	var id = $(".test").attr('id');
+	//alert(ID);
+	
+		 $.ajax({
+					dataType: "html",
+					type: "POST",
+					data: {id:id},
+					cache: false,
+					url:  '<?php echo  base_url().'translator/linkdelete1';?>',
+					success: function (data, textStatus){
+						alert(data); 
+						
+					
+                	}
+            });
+	
+		
+		
+    exit;
+    }  
+</script>
+      
+<?php
+$this->load->view('vwFooter');
+?>
+<?php
+$this->load->view('vwFooterLower');
+?>

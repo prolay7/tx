@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+    <meta name="description" content="">
+    <meta name="author" content="sujay mondal">
+    <link rel="shortcut icon" type="image/x-icon" href="<?php echo HTTP_ASSETS_PATH_ADMIN; ?>favicon.ico">
+
+    <title><?php echo SITE_NAME; ?></title>
+
+    <!-- bootstrap & fontawesome -->
+		<link rel="stylesheet" href="<?php echo HTTP_CSS_PATH; ?>bootstrap.css" />
+		<link rel="stylesheet" href="<?php echo HTTP_CSS_PATH; ?>font-awesome.css" />
+       
+
+		<!-- page specific plugin styles -->
+
+		<!-- text fonts -->
+		<link rel="stylesheet" href="<?php echo HTTP_CSS_PATH; ?>ace-fonts.css" />
+
+		<!-- ace styles -->
+		<link rel="stylesheet" href="<?php echo HTTP_CSS_PATH; ?>ace.css" class="ace-main-stylesheet" id="main-ace-style" />
+
+		<!--[if lte IE 9]>
+			<link rel="stylesheet" href="<?php echo HTTP_CSS_PATH; ?>ace-part2.css" class="ace-main-stylesheet" />
+		<![endif]-->
+
+		<!--[if lte IE 9]>
+		  <link rel="stylesheet" href="<?php echo HTTP_CSS_PATH; ?>ace-ie.css" />
+		<![endif]-->
+
+		<!-- inline styles related to this page -->
+
+		<!-- ace settings handler -->
+		<script src="<?php echo HTTP_JS_PATH; ?>ace-extra.js"></script>
+
+		<!-- HTML5shiv and Respond.js for IE8 to support HTML5 elements and media queries -->
+
+		<!--[if lte IE 8]>
+		<script src="<?php echo HTTP_JS_PATH; ?>html5shiv.js"></script>
+		<script src="<?php echo HTTP_JS_PATH; ?>respond.js"></script>
+        
+		<![endif]-->
+<!-- basic scripts -->
+
+		<!--[if !IE]> -->
+		<script type="text/javascript">
+			window.jQuery || document.write("<script src='<?php echo HTTP_JS_PATH; ?>jquery.js'>"+"<"+"/script>");
+		</script>
+
+		<!-- <![endif]-->
+
+		<!--[if IE]>
+        <script type="text/javascript">
+         window.jQuery || document.write("<script src='<?php echo HTTP_JS_PATH; ?>jquery1x.js'>"+"<"+"/script>");
+        </script>
+        <![endif]-->
+        
+		<script type="text/javascript">
+			if('ontouchstart' in document.documentElement) document.write("<script src='<?php echo HTTP_JS_PATH; ?>jquery.mobile.custom.js'>"+"<"+"/script>");
+		</script>
+		<script src="<?php echo HTTP_JS_PATH; ?>bootstrap.js"></script>
+
+        <!-- page specific plugin scripts -->
+		<!--<script src="<?php echo HTTP_JS_PATH; ?>dataTables/jquery.dataTables.js"></script>
+		<script src="<?php echo HTTP_JS_PATH; ?>dataTables/jquery.dataTables.bootstrap.js"></script>
+		<script src="<?php echo HTTP_JS_PATH; ?>dataTables/extensions/TableTools/js/dataTables.tableTools.js"></script>
+		<script src="<?php echo HTTP_JS_PATH; ?>dataTables/extensions/ColVis/js/dataTables.colVis.js"></script>-->
+
+		<!--[if lte IE 8]>
+		  <script src="<?php echo HTTP_JS_PATH; ?>excanvas.js"></script>
+		<![endif]-->
+		<script src="<?php echo HTTP_JS_PATH; ?>jquery-ui.custom.js"></script>
+		<script src="<?php echo HTTP_JS_PATH; ?>jquery.ui.touch-punch.js"></script>
+		<script src="<?php echo HTTP_JS_PATH; ?>jquery.easypiechart.js"></script>
+		<script src="<?php echo HTTP_JS_PATH; ?>jquery.sparkline.js"></script>
+		<script src="<?php echo HTTP_JS_PATH; ?>flot/jquery.flot.js"></script>
+		<script src="<?php echo HTTP_JS_PATH; ?>flot/jquery.flot.pie.js"></script>
+		<script src="<?php echo HTTP_JS_PATH; ?>flot/jquery.flot.resize.js"></script>
+
+		<!-- ace scripts -->
+		<script src="<?php echo HTTP_JS_PATH; ?>ace/elements.scroller.js"></script>
+		<script src="<?php echo HTTP_JS_PATH; ?>ace/elements.colorpicker.js"></script>
+		<script src="<?php echo HTTP_JS_PATH; ?>ace/elements.fileinput.js"></script>
+		<script src="<?php echo HTTP_JS_PATH; ?>ace/elements.typeahead.js"></script>
+		<script src="<?php echo HTTP_JS_PATH; ?>ace/elements.wysiwyg.js"></script>
+		<script src="<?php echo HTTP_JS_PATH; ?>ace/elements.spinner.js"></script>
+		<script src="<?php echo HTTP_JS_PATH; ?>ace/elements.treeview.js"></script>
+		<script src="<?php echo HTTP_JS_PATH; ?>ace/elements.wizard.js"></script>
+		<script src="<?php echo HTTP_JS_PATH; ?>ace/elements.aside.js"></script>
+		<script src="<?php echo HTTP_JS_PATH; ?>ace/ace.js"></script>
+		<script src="<?php echo HTTP_JS_PATH; ?>ace/ace.ajax-content.js"></script>
+		<script src="<?php echo HTTP_JS_PATH; ?>ace/ace.touch-drag.js"></script>
+		<script src="<?php echo HTTP_JS_PATH; ?>ace/ace.sidebar.js"></script>
+		<script src="<?php echo HTTP_JS_PATH; ?>ace/ace.sidebar-scroll-1.js"></script>
+		<script src="<?php echo HTTP_JS_PATH; ?>ace/ace.submenu-hover.js"></script>
+		<script src="<?php echo HTTP_JS_PATH; ?>ace/ace.widget-box.js"></script>
+		<script src="<?php echo HTTP_JS_PATH; ?>ace/ace.settings.js"></script>
+		<script src="<?php echo HTTP_JS_PATH; ?>ace/ace.settings-rtl.js"></script>
+		<script src="<?php echo HTTP_JS_PATH; ?>ace/ace.settings-skin.js"></script>
+		<script src="<?php echo HTTP_JS_PATH; ?>ace/ace.widget-on-reload.js"></script>
+		<script src="<?php echo HTTP_JS_PATH; ?>ace/ace.searchbox-autocomplete.js"></script>
+
+
+
+		<!-- the following scripts are used in demo only for onpage help and you don't need them -->
+		<link rel="stylesheet" href="<?php echo HTTP_CSS_PATH; ?>ace.onpage-help.css" />
+		<link rel="stylesheet" href="<?php echo HTTP_DOCS_PATH_ADMIN; ?>assets/js/themes/sunburst.css" />
+
+		<script type="text/javascript"> ace.vars['base'] = '..'; </script>
+		<script src="<?php echo HTTP_JS_PATH; ?>ace/elements.onpage-help.js"></script>
+		<script src="<?php echo HTTP_JS_PATH; ?>ace/ace.onpage-help.js"></script>
+		<!--<script src="<?php echo HTTP_JS_PATH; ?>js/rainbow.js"></script>
+		<script src="<?php echo HTTP_DOCS_PATH_ADMIN; ?>assets/js/language/generic.js"></script>
+		<script src="<?php echo HTTP_DOCS_PATH_ADMIN; ?>assets/js/language/html.js"></script>
+		<script src="<?php echo HTTP_DOCS_PATH_ADMIN; ?>assets/js/language/css.js"></script>
+		<script src="<?php echo HTTP_DOCS_PATH_ADMIN; ?>assets/js/language/javascript.js"></script>-->
+        
+        
+
+  </head>						
+  <body>
+  
+  							<div class="clearfix" > </div>
+                            <div class="row">
+                            <div class="col-xs-12">
+                            <h3 style="color:#6fb3e0 ;padding-left: 20px;" ><strong > Invitation to the Translator</strong></h3>
+                            <?php
+							$id= $this->uri->segment(3);  
+							$list_query=mysql_query("select * from translator where id='". $id."'");
+							$rows=mysql_fetch_array($list_query);
+                   			 ?>
+                            <?php 
+                           
+                            $job_id=$this->uri->segment(4);
+                            $attributes = array('class' => 'form-registration', 'id'=>'user-registration', 'enctype' => 'multipart/form-data'); 
+                            echo form_open_multipart('admin_invite/send/'.$job_id.'' , $attributes); 
+                            ?>
+                            <div class="col-xs-12">
+                            <div class="form-group" style="padding-top:30px; overflow: hidden;">
+                            <label class="col-sm-3 control-label no-padding-right" for="form-field-1">Job Name : </label>
+                            <div class="col-sm-9">
+                            <?php 
+                            $sql1=" SELECT * FROM `jobpost` WHERE id='$job_id'";
+                            $val1=$this->db->query($sql1);
+                            $job=$val1->result();
+                            foreach ($job as $job1) { 
+                            ?>
+                            <input name="job_id" id="job_id" class="form-control col-xs-5 col-sm-5" value="<?php echo $job1->id; ?>" type="hidden" readonly>    
+                            <input name="job_name" id="job_name" class="form-control col-xs-5 col-sm-5" value="<?php echo $job1->name; ?>" type="text" readonly>
+                            <input name="job_alias" id="job_alias" class="form-control col-xs-5 col-sm-5" value="<?php echo $job1->alias; ?>" type="hidden" readonly>
+                            
+                            
+                            <?php } ?>
+                            </div>
+                            </div>
+                            <div class="form-group" style="overflow:hidden;">
+                            <label class="col-sm-3 control-label no-padding-right" for="form-field-1"> Email: </label>
+                            <div class="col-sm-9">
+                            <input name="email" id="email" class="form-control col-xs-5 col-sm-5" value="<?php echo $rows['email_address']; ?>" type="text" readonly>
+                            
+                            </div>
+                            </div>
+                            <div class="form-group" style=" overflow:hidden">
+                            <label class="col-sm-3 control-label no-padding-right" for="form-field-1 "> Description  </label>
+                            <div class="col-sm-9">
+                            <textarea name="description" id="description" class="form-control col-xs-5 col-sm-5 " > </textarea>
+                            </div>
+                            </div>
+                            </div>
+                            <div class="col-md-offset-3 col-md-10" style="padding-top:30px;">
+                            <button class="btn btn-info" type="submit">
+                            <i class="ace-icon fa fa-check bigger-110"></i>
+                            Send
+                            </button>
+                            
+                            &nbsp; &nbsp; &nbsp;
+                            <button class="btn" type="reset">
+                            <i class="ace-icon fa fa-undo bigger-110"></i>
+                            Reset
+                            </button>
+                            </div>
+                            
+                            <?php echo form_close(); ?>
+                            <!-- PAGE CONTENT ENDS -->
+                            <!-- /.col -->
+                            </div>
+                            </div>
+             </body>
+          </html>

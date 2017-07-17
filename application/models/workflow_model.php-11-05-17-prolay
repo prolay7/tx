@@ -1,0 +1,255 @@
+<?php
+
+
+
+/**
+
+* 
+
+*/
+
+class Workflow_model extends CI_Model
+
+{
+
+    public function __construct()
+    {
+        $this->load->database();
+    }
+
+    public function add_work_flow_data($data){
+
+        $insert = $this->db->insert('workflow', $data);
+
+        return $insert;
+
+    }
+
+    public function update_work_flow_data($data,$condition){
+
+        $this->db->where($condition);
+
+        $updated=$this->db->update('workflow', $data);
+
+        return $updated;
+    }
+
+    public function get_workflow(){
+
+
+
+        $this->db->select('*');
+
+        $this->db->from('workflow');
+
+
+
+        /*if ($search_string){
+
+            //$this->db->where("(`price` LIKE '$search_string')");
+
+            $this->db->where('created_date',$search_string);
+
+        }
+
+
+
+        if($payment_status!='') {
+
+            //echo $payment_status;die;
+
+            //$this->db->where('payment',$payment_status);
+
+        }
+
+
+
+
+
+        $this->db->limit($limit_start, $limit_end);*/
+
+        $query = $this->db->get();
+
+
+
+        return $query->result();
+    }
+
+    public function get_all_jobs($condition='',$order='DESC',$order_by='',$group_by='',$offset=0,$limit_start='',$limit_end=''){
+
+        if($condition!=''){
+
+            $this->db->where($condition);
+
+        }
+
+
+
+        if($order_by!=''){
+
+            $this->db->order_by($order_by, $order);
+
+        }
+
+
+
+        if($group_by!=''){
+
+            $this->db->group_by('id');
+
+        }
+    }
+
+
+    public function get_jobs($condition=''){
+
+        if($condition!=''){
+
+            $this->db->where($condition);
+
+        }
+
+
+
+        $this->db->order_by('id', 'desc');
+
+        $this->db->group_by('id');
+
+    
+
+        $query=$this->db->get('jobpost');
+
+        return $query->result();
+    }
+
+    public function gettransalator($condition){
+
+        $this->db->where($condition);
+
+        $query=$this->db->get('translator');
+
+        return $query->result();
+    }
+
+    public function getbidjobs($condition){
+
+        $this->db->where($condition);
+
+        $query=$this->db->get('bidjob');
+
+        return $query->result();
+    }
+
+    public function getlanguages($condition){
+
+        $this->db->where($condition);
+
+        $query=$this->db->get('languages');
+
+        return $query->result();
+    }
+
+
+//10-05-17
+    public function get_jobposts($search_string=null,$search_string2=null, $order=null, $order_type='Asc', $limit_start, $limit_end, $sort_type='ASC')
+    {
+        
+        //$this->db->select('category.id');
+        $this->db->select('*');
+        $this->db->from('jobpost');
+        
+        $year=explode('-',$search_string)[0];
+        $month=explode('-',$search_string)[1];
+        $month=!empty($month)?$month:date('m');
+        $year=!empty($year)?$year:date('Y');
+        if(!empty($month)){
+            $this->db->where('YEAR(created)', $year);
+            $this->db->where('MONTH(created)', $month);
+        }
+        if(!empty($month) && empty($search_string2) || $search_string2==null || $search_string2==''){
+            $this->db->where('YEAR(created)', $year);
+            $this->db->where('MONTH(created)', $month);
+        }
+
+        if(!empty($month) && !empty($search_string2) || $search_string2!=null || $search_string2!=''){
+            $this->db->where('YEAR(created)', $year);
+            $this->db->where('MONTH(created)', $month);
+            $this->db->where("(lineNumber LIKE '%".$search_string2."%' OR name LIKE '%".$search_string2."%')");
+        }
+
+        $this->db->group_by('jobpost.id');
+
+        /*if($order){
+            $this->db->order_by($order, $order_type);
+        }else{
+            $this->db->order_by('id', $order_type);
+        }*/
+
+        $this->db->order_by('lineNumber', $sort_type);
+
+
+        $this->db->limit($limit_start, $limit_end);
+        //$this->db->limit('4', '4');
+
+
+        $query = $this->db->get();
+        //echo '<pre>'; print_r($query->result_array()); die;
+        //echo $this->db->last_query();//die;
+        return $query->result();  
+    }
+
+
+    public function count_jobs($search_string=null, $search_string2=null, $order=null)
+    {
+        $this->db->select('*');
+        $this->db->from('jobpost');
+        $year=explode('-',$search_string)[0];
+        $month=explode('-',$search_string)[1];
+        $month=!empty($month)?$month:date('m');
+        $year=!empty($year)?$year:date('Y');
+        if(!empty($month)){
+            $this->db->where('YEAR(created)', $year);
+            $this->db->where('MONTH(created)', $month);
+        }
+        if(!empty($month) && empty($search_string2) || $search_string2==null || $search_string2==''){
+            $this->db->where('YEAR(created)', $year);
+            $this->db->where('MONTH(created)', $month);
+        }
+
+        if(!empty($month) && !empty($search_string2) || $search_string2!=null || $search_string2!=''){
+            $this->db->where('YEAR(created)', $year);
+            $this->db->where('MONTH(created)', $month);
+            $this->db->where("(lineNumber LIKE '%".$search_string2."%' OR name LIKE '%".$search_string2."%')");
+        }
+        if($order){
+            $this->db->order_by($order, 'ASC');
+        }else{
+            $this->db->order_by('id', 'ASC');
+        }
+        $query = $this->db->get();
+        return $query->num_rows();        
+    }
+
+
+    public function get_workflow_edited_columns($stage_column){
+        $this->db->select('*');
+        $this->db->from('workflow_edited');
+        //$this->db->where('data_month',3);
+        $this->db->where('stage_column',$stage_column);
+        $this->db->order_by('stage_order', 'ASC');
+        //$this->db->group_by('stage_column');
+       // $this->db->group_by('data_month');
+        $query=$this->db->get();
+        //echo $this->db->last_query();die;
+        return $query->result();
+    }
+
+    public function get_distinct_column(){
+        $query=$this->db->query('SELECT DISTINCT(stage_column) FROM `workflow_edited` ORDER BY `stage_order` ASC');
+        return $query->result();
+    }
+
+
+
+
+}

@@ -1,0 +1,50 @@
+
+<?php
+$this->load->view('email/includes/vwHeader');
+?>
+<div class="container">
+
+
+   
+    <div class="row">
+      <div class="col-xs-12">
+        <!-- PAGE CONTENT BEGINS -->
+    			
+				
+                    <table class="table" align="center">
+                        <thead>
+                        <tr>
+                        	<th>Name </th>
+                            <th>Email </th>
+                            <th>Address</th>
+                            <th>Phone Number</th>
+                            <th>Message </th>
+                        </tr>
+                        </thead>
+                    	<tbody>
+                        <tr class="success">
+                        	<td><?php echo $first_name; ?> <?php echo $last_name; ?></td>
+                            <td height="25"><?php echo $email_address; ?></td>
+                            <td><?php echo $address; ?></td>
+                            <td> <?php echo $phone; ?></td>
+                            <td><?php echo $message; ?></td>
+                        </tr>
+                        </tbody>
+                    </table>
+
+            
+        <!-- PAGE CONTENT ENDS -->
+        </div><!-- /.col -->
+	</div>
+</div>
+ 
+
+<!--
+    The idea is to use mostly Bootstrap markup,
+    peppered with a few "tr" and "td" classes,
+    so you can turn any basic bootstrap panel
+    into a columnar panel.
+-->
+<?php
+$this->load->view('email/includes/vwFooter');
+?>

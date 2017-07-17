@@ -1,0 +1,1439 @@
+<?php error_reporting(0);
+if (!defined('BASEPATH'))
+    exit('No direct script access allowed');
+
+class Admin_Jobpost extends CI_Controller {
+
+	public function __construct()
+    {
+        parent::__construct();
+        $this->load->model('adminjobpost_model');
+        $this->load->model('adminbidjob_model');
+		$this->load->helper('path');
+        if(!$this->session->userdata('is_admin')){
+            redirect('admin/login');
+        }
+		//echo '<pre>'; print_r($this->session->userdata);
+    }
+
+	function UrlAlias ($string, $table, $id = NULL) {
+        //remove any '-' from the string they will be used as concatonater
+        $str = str_replace('-', ' ', $string);
+        $str = str_replace('_', ' ', $string);
+        // remove any duplicate whitespace, and ensure all characters are alphanumeric
+        $str = preg_replace(array('/\s+/','/[^A-Za-z0-9\-]/'), array('-',''), $str);
+
+        // lowercase and trim
+        $str = trim(strtolower($str));
+  
+  		// checking if in db or not
+ 		 if($id == NULL){
+			$sql = "SELECT * FROM ".$table." WHERE 1 AND `alias` ='".$str."'";
+			} else {
+			$sql = "SELECT * FROM ".$table." WHERE 1 AND `alias` ='".$str."' AND `id` <> '".$id."'";
+			}
+			$res = mysql_query($sql);
+			$rowcount = mysql_num_rows($res);
+			
+			if($rowcount == 0) {
+			return $str;
+			} else {
+				$number=mt_rand ( 100 , 999);
+				return $str.$number;
+			//return false;
+			}
+    		}
+	
+    public function index()
+    {
+				
+        //all the posts sent by the view        
+        $search_string = $this->input->post('search_string'); 				    
+        $order = $this->input->post('order'); 
+        $order_type = $this->input->post('order_type'); 
+
+        //pagination settings
+        $config['per_page'] =10;
+        $config['base_url'] = base_url().'admin/joblist';
+        $config['use_page_numbers'] = TRUE;
+        $config['num_links'] = 20;
+        $config['full_tag_open'] = '<ul>';
+        $config['full_tag_close'] = '</ul>';
+        $config['num_tag_open'] = '<li>';
+        $config['num_tag_close'] = '</li>';
+        $config['cur_tag_open'] = '<li class="active"><a>';
+        $config['cur_tag_close'] = '</a></li>';
+        
+        $page = $this->uri->segment(3);
+        
+        $limit_end=($page * $config['per_page']) - $config['per_page'];
+        if ($limit_end < 0){
+            $limit_end = 0;
+        } 
+
+       
+        if($order_type){
+            $filter_session_data['order_type'] = $order_type;
+        }
+        else{
+           
+            if($this->session->userdata('order_type')){
+                $order_type = $this->session->userdata('order_type');    
+            }else{
+               
+                $order_type = 'Asc';    
+            }
+        }
+       
+        $data['order_type_selected'] = $order_type;        
+
+        if($search_string !='' || $order !='' || $this->uri->segment(3) == true){         
+            
+			 if($search_string){
+                $filter_session_data['search_string_selected'] = $search_string;
+            }else{
+                $search_string =$this->session->userdata('search_string_selected');
+				$filter_session_data['search_string_selected'] = $search_string;
+            }
+            $data['search_string_selected'] = $search_string;
+
+            if($order){
+                $filter_session_data['order'] = $order;
+            }
+            else{
+                $order =$this->session->userdata('order');
+            }
+            $data['order'] = $order;
+
+            //save session data into the session
+            $this->session->set_userdata($filter_session_data); 
+
+         
+
+            $data['count_jobpost']= $this->adminjobpost_model->count_jobpost($search_string, $order);
+            $config['total_rows'] = $data['count_jobpost'];
+
+            //fetch sql data into arrays
+            if($search_string){
+                if($order){
+                    $data['jobpost'] = $this->adminjobpost_model->get_jobpost($search_string, $order, $order_type, $config['per_page'],$limit_end);        
+                }else{
+                    $data['jobpost'] = $this->adminjobpost_model->get_jobpost($search_string, '', $order_type, $config['per_page'],$limit_end);           
+                }
+            }else{
+                if($order){
+                    $data['jobpost'] = $this->adminjobpost_model->get_jobpost('', $order, $order_type, $config['per_page'],$limit_end);        
+                }else{
+                    $data['jobpost'] = $this->adminjobpost_model->get_jobpost('', '', $order_type, $config['per_page'],$limit_end);        
+                }
+            }
+
+        }else{
+
+            //clean filter data inside section            
+            $filter_session_data['search_string_selected'] = null;	
+			$filter_session_data['order'] = null;
+            $filter_session_data['order_type'] = null;
+            $this->session->set_userdata($filter_session_data);
+
+            //pre selected options
+            $data['search_string_selected'] = '';
+            $data['order'] = 'id';
+
+            //fetch sql data into arrays
+            
+            $data['count_jobpost']= $this->adminjobpost_model->count_jobpost();
+            $data['jobpost'] = $this->adminjobpost_model->get_jobpost('', '', $order_type, $config['per_page'],$limit_end);        
+            $config['total_rows'] = $data['count_jobpost'];
+
+          }
+        $this->pagination->initialize($config); 
+        $this->load->view('admin/jobpost/vwJoblist',$data);	
+	
+ 
+ }
+	
+	
+	public function upload()
+		{error_reporting(0);
+			if(isset($_FILES["myfile"]))
+				{
+				$newRet  = "";
+				$ret =  array();
+				$error =$_FILES["myfile"]["error"];
+					if(!is_array($_FILES["myfile"]['name'])) //single file
+					{
+						$newdir=time();
+						$output_dir = "./uploads/jobpost/".$newdir."/";
+						$dir = $newdir."/";
+							if (!is_dir($output_dir)) {
+								mkdir($output_dir);
+							}
+						$RandomNum   = time();
+						$ImageName      = str_replace(' ','-',strtolower($_FILES['myfile']['name']));
+						$ImageType      = $_FILES['myfile']['type']; //"image/png", image/jpeg etc.
+						$ImageExt = substr($ImageName, strrpos($ImageName, '.'));
+						$ImageExt       = str_replace('.','',$ImageExt);
+						$ImageName      = preg_replace("/\.[^.\s]{3,4}$/", "", $ImageName);
+						
+						$NewImageName = $ImageName.'.'.$ImageExt;
+						move_uploaded_file($_FILES["myfile"]["tmp_name"],$output_dir. $NewImageName);
+							 $newRet .= $dir.$NewImageName."##";
+							 echo $newRet;
+					}
+					
+				
+			}
+		}
+	public function add()
+   	 {
+	
+	if($this->session->userdata('is_admin')){
+      $data['message_error'] = "";
+		$data['message_success'] = "";
+        //if save button was clicked, get the data sent via post
+        if ($this->input->server('REQUEST_METHOD') === 'POST')
+        {
+            $this->form_validation->set_rules('name', 'jobpost name', 'required');
+			$this->form_validation->set_rules('price', 'jobpost price', 'trim|required|numeric');
+			$this->form_validation->set_rules('desc', 'jobpost Description', 'required');
+			$this->form_validation->set_rules('language_from', 'jobpost language From', 'required');
+			$this->form_validation->set_rules('language', 'jobpost language', 'required');
+			$this->form_validation->set_rules('stage', 'jobpost stage', 'required');
+			$this->form_validation->set_rules('totalFile', 'upload file ', 'required');
+		    if ($this->form_validation->run())
+            { 
+		
+						$alias=$this->input->post('alias');
+						$name=$this->input->post('name');
+						
+						if($alias == '') {
+                   		$str=$this->UrlAlias ($name, 'jobpost');
+                    	} else {
+                   		 $str=$this->UrlAlias ($alias,'jobpost'); 
+                    	}
+						
+				if($str) {
+                $data_to_store = array(
+                    'name' => $this->input->post('name'),
+					'alias'=>$str,
+					'file' =>$this->input->post('totalFile'),
+                    'description' => $this->input->post('desc'),
+					'language_from' => $this->input->post('language_from'),
+					'language' => $this->input->post('language'),
+					'price' => $this->input->post('price'),
+					'totalFile' => $this->input->post('totalFile'),
+					'status' => 1,
+					'stage' =>$this->input->post('stage'),
+					'created' => date('Y-m-d h:i:s')
+                );
+			
+                if($this->adminjobpost_model->store_jobpost($data_to_store)){
+                    
+                    $data['message_success'] = "jobpost added successfully."; 
+				
+						$job_id = $this->db->insert_id();
+						$sql1="select * from jobpost where id=$job_id";
+						$val1 = $this->db->query($sql1);
+						$rows = $val1->row();
+						//$job_language=$rows->language;
+						$job_name=$rows->name;
+						$job_desc=$rows->description;
+						$job_alias=$rows->alias;
+						//echo'<pre>';print_r($row_name); die();
+						
+						$job_language=$rows->language;
+						$sql2="select * from languages where id=$job_language";
+						$val2 = $this->db->query($sql2);
+						$ro = $val2->row();
+						$lan=$ro->name;
+						
+						$lang= $this->input->post('language');
+						$sql = "SELECT * FROM translator WHERE language like '%".",".$lang.","."%' ";
+						$val = $this->db->query($sql);
+						$row_email = $val->result();
+						
+							$data = array(
+								'job_name' => $job_name,
+								'description' => $job_desc,
+								'job_alias' => $job_alias,
+								'translate_to'=>$lan,
+								'created' => date('Y-m-d h:i:s')
+							);	
+								/*foreach ($row_email as $key => $value)
+								{
+								$mailTo = $value->email_address;
+								$mailName = $value->first_name;
+								$mailhash = $value->hash;
+								
+								$mailId=$value->id;
+								$data['name'] = $mailName;
+								$data['hash'] = $mailhash;
+								$data['id'] = $mailId;
+								$this->email->set_mailtype("html");
+								$this->email->from('info@montesinotranslation.com');
+								$this->email->to($mailTo);
+								$this->email->subject('Invitation');
+								$html_email = $this->load->view('email/vwTranslatorSend', $data ,true);
+								$this->email->message($html_email);
+								$this->email->send();
+								}*/
+				 	$data['message_success'] = "Successfully Job Added";
+					}
+				} 
+				else 
+				{
+					$data['message_error'] =  "Please try another alias!";
+				}
+					
+			
+			
+        }
+	}
+        //load the view
+		$this->load->view('admin/jobpost/vwAddjobpost',$data); 
+      } 
+		else {
+       		 redirect('admin_jobpost/add');
+      }
+		
+ }//add
+
+	 public function viewsummary(){
+		 if($this->session->userdata('is_admin')){
+			 $this->load->view('admin/vwSummary',$data); 
+		 }
+	 }
+	
+
+    public function edit()
+		{
+	if($this->session->userdata('is_admin')){
+        $id= $this->uri->segment(3);
+		//echo $id;die;
+		$sql="SELECT * FROM `jobpost` where `id`='$id' ";
+		$qry=$this->db->query($sql);
+		if($qry->num_rows()=='1')
+		{
+        $data['fetch']=$qry->row();
+		//$this->load->view('admin/vwEditjob', $data);
+		$this->load->view('admin/vwJobDetails', $data);
+		}
+		
+      } else {
+        $this->session->set_flashdata('error_message', 'Not Permited');
+        redirect('admin/index');
+      }
+	}
+	
+	
+	function editprofile() { 
+		
+		if(!$this->session->userdata('is_admin')){
+			$this->load->view('admin/vwLogin');	
+		} else {		
+			$job_id= $this->uri->segment(3);   
+			
+			$this->form_validation->set_rules('job_title', 'Job Title', 'trim|required');
+			$this->form_validation->set_rules('job_alias', 'Job Alias', 'trim|required');
+			$this->form_validation->set_rules('job_price', 'Job Price', 'trim|required|numeric');
+			$this->form_validation->set_rules('job_description', 'Job Description', 'trim|required');
+			//$this->form_validation->set_rules('job_status', 'Job Status', 'trim|required|numeric');
+		
+			
+			
+			if($this->form_validation->run() == FALSE) {
+				$this->session->set_flashdata('flash_error','Error Validation');
+				//redirect('admin_jobpost/edit/'.$job_id);
+			} else {
+					$number_of_files = sizeof($_FILES['userfile']['tmp_name']);
+					$files = $_FILES['userfile'];
+			
+					if($this->input->post('totalFile')!= ""){ 
+							 $a=$this->input->post('stage');	
+							 $alias=$this->input->post('job_alias');
+							 $prefile=$this->input->post('prefile');
+							 $newfile=$prefile.$this->input->post('totalFile');
+							 $str=$this->UrlAlias ($alias,'jobpost',$job_id); 
+						if($str){
+						
+						$sql = "UPDATE `jobpost` SET 
+						`name`   = '".$this->input->post('job_title')."', 
+						`description`   = '". $this->input->post('job_description') ."',
+						`language_from`   = '". $this->input->post('language_from') ."', 	
+						`language`   = '". $this->input->post('job_language') ."', 					
+						`price`    = '". $this->input->post('job_price') ."',
+						`alias`    = '".$str."',
+						`file`    = '".$newfile."',
+						`stage`    = '". $this->input->post('job_stage') ."',
+						`status`    = '". 1 ."',
+						`modified`    = '". date('Y-m-d h:i:s') ."'
+						WHERE `id` = '" .$job_id. "'";
+						
+						$path = './uploads/jobpost/'.$this->input->post('prefile');
+						unlink($path);
+						
+						$val = $this->db->query($sql);
+						
+						
+						}
+						else
+						{
+						$this->session->set_flashdata('error_message', 'Please try another alias!');
+						redirect('admin_jobpost/editprofile/'.$job_id);								
+						
+						}
+						
+						if($val == TRUE){
+						
+						$sql1="select * from jobpost where id=$job_id";
+						
+						$val1 = $this->db->query($sql1);
+						$rows = $val1->row();
+						$job_name=$rows->name;
+						$job_desc=$rows->description;
+						$job_alias=$rows->alias;
+						
+						
+						$job_language=$rows->language;
+						$sql2="select * from languages where id=$job_language";
+						$val2 = $this->db->query($sql2);
+						$ro = $val2->row();
+						$lan=$ro->name;
+						
+						
+						//echo'<pre>';print_r($row_name); die();
+						$lang= $this->input->post('job_language');
+						
+						$sql = "SELECT * FROM translator WHERE language like '%".",".$lang.","."%' ";
+						$val = $this->db->query($sql);
+						$row_email = $val->result();
+						
+						$data = array(
+						'job_name' => $job_name,
+						'description' => $job_desc,
+						'translate_to'=>$lan,
+						'job_alias' => $job_alias,
+						'created' => date('Y-m-d h:i:s')
+						);	
+						foreach ($row_email as $key => $value)
+						{
+						$mailTo = $value->email_address;
+						$mailName = $value->first_name;
+						$mailhash = $value->hash;
+						
+						$mailId=$value->id;
+						$data['name'] = $mailName;
+						$data['hash'] = $mailhash;
+						$data['id'] = $mailId;
+						$this->email->set_mailtype("html");
+						$this->email->from('info@montesinotranslation.com');
+						$this->email->to($mailTo);
+						$this->email->subject('Invitation');
+						$html_email = $this->load->view('email/vwTranslatorSend', $data ,true);
+						$this->email->message($html_email);
+						$this->email->send();
+						}
+						
+						
+						$this->session->set_flashdata('success_message', 'Successfully Updated');
+						redirect('admin_jobpost/editprofile/'.$job_id);
+						
+						} 
+						else {						
+						$this->session->set_flashdata('error_message', 'Not Updated');
+						redirect('admin_jobpost/editprofile/'.$job_id);
+						
+						}
+						
+				
+				} 
+				else {
+					 $alias=$this->input->post('job_alias');
+					$str=$this->UrlAlias ($alias,'jobpost',$job_id);
+					//***//
+					
+					if($this->input->post('prefile') != "")  {	
+					if($str){
+					$sql = "UPDATE `jobpost` SET 
+					`name`   = '".$this->input->post('job_title')."', 
+					`description`   = '". $this->input->post('job_description') ."',
+					`language_from`   = '". $this->input->post('language_from') ."', 
+					`language`   = '". $this->input->post('job_language') ."', 					
+					`price`    = '". $this->input->post('job_price') ."',
+					`alias`    = '".$str."',
+					`stage`    = '". $this->input->post('job_stage') ."',
+					`status`    = '". $this->input->post('job_status') ."',
+				
+					`modified`    = '". date('Y-m-d h:i:s') ."'
+					 WHERE `id` = '" .$job_id. "'";
+					 
+				    $val = $this->db->query($sql);
+				
+					
+					
+					
+						$sql1="select * from jobpost where id=$job_id";
+						$val1 = $this->db->query($sql1);
+						$rows = $val1->row();
+						$job_name=$rows->name;
+						$job_desc=$rows->description;
+						$job_alias=$rows->alias;
+						
+						$job_language=$rows->language;
+						$sql2="select * from languages where id=$job_language";
+						$val2 = $this->db->query($sql2);
+						$ro = $val2->row();
+						$lan=$ro->name;
+						
+						//echo'<pre>';print_r($row_name); die();
+						$lang= $this->input->post('job_language');
+				
+						$sql = "SELECT * FROM translator WHERE language like '%".",".$lang.","."%' ";
+						
+						$val = $this->db->query($sql);
+						$row_email = $val->result();
+						
+							$data = array(
+								'job_name' => $job_name,
+								'description' => $job_desc,
+								'translate_to'=>$lan,
+								'job_alias' => $job_alias,
+								'created' => date('Y-m-d h:i:s')
+							);	
+								foreach ($row_email as $key => $value)
+								{
+								$mailTo = $value->email_address;
+								$mailName = $value->first_name;
+								$mailhash = $value->hash;
+								
+								$mailId=$value->id;
+								$data['name'] = $mailName;
+								$data['hash'] = $mailhash;
+								$data['id'] = $mailId;
+								$this->email->set_mailtype("html");
+								$this->email->from('info@montesinotranslation.com');
+								$this->email->to($mailTo);
+								$this->email->subject('Invitation');
+								$html_email = $this->load->view('email/vwTranslatorSend', $data ,true);
+								$this->email->message($html_email);
+								$this->email->send();
+								}
+					            }else
+								{
+								$this->session->set_flashdata('error_message', 'Please try another alias!');
+                                redirect('admin_jobpost/editprofile/'.$job_id);								
+								}
+					
+					//echo '<pre>'; print_r($sql); die;
+					$this->session->set_flashdata('success_message', 'Successfully Updated');
+                    redirect('admin_jobpost/editprofile/'.$job_id);
+					} else {						
+					$this->session->set_flashdata('error_message', 'Not Updated');
+                    redirect('admin_jobpost/editprofile/'.$job_id);
+					}
+				
+				}  
+					  
+	      }
+	    $sql="SELECT * FROM `jobpost` where `id`='$job_id' ";
+		$qry=$this->db->query($sql);
+		if($qry->num_rows()=='1')
+		{
+        $data['fetch']=$qry->row();
+		$this->load->view('admin/vwEditjob', $data);
+		}
+		}
+	}
+	function linkdelete() {
+		$id=$this->input->post('id');
+		
+		$path = './uploads/jobpost/'.$id;
+		unlink($path);
+		echo "Remove sucessfully";	
+		
+		
+		}
+	
+	public function removefile()
+	{if($this->session->userdata('is_admin')){
+		$id = $this->uri->segment(3);
+		$old=$this->uri->segment(4);
+		$oldf=$this->uri->segment(5);
+		if($oldf == ''){
+		 $oldfile=$old.'##';	
+			}else{
+		 $oldfile=$old.'/'.$oldf.'##';}
+		//echo $oldfile;die;
+		$sql = "SELECT * FROM jobpost WHERE id = " . $id . " ";
+		$val = $this->db->query($sql);
+		$row = $val->row_array();
+		$file = $row['file'];
+		//echo"$file";die;
+		$filename = strstr($file, '/',true);
+		if($oldf == ''){
+		 $old=$old;	
+			}else{
+		 $old=$old.'/'.$oldf;}
+		//echo './uploads/jobpost/'.$old; die;
+		$path = './uploads/jobpost/'.$old;
+		unlink($path);	
+		//echo $file ;
+		$string = str_replace($oldfile, "", $file);
+		//echo $string;die;
+			$sql1 = "UPDATE `jobpost` SET 
+					`file`   = '".$string."'
+					 WHERE `id` = '" .$id. "'";
+					 
+		$val1 = $this->db->query($sql1);
+		$this->session->set_flashdata('success_message', 'Successfully Removed');
+        redirect('admin_jobpost/editprofile/'.$id);
+	}
+	}
+	
+	 public function delete()
+    {	
+	if($this->session->userdata('is_admin')){
+       $id = $this->uri->segment(3);
+	   //echo $id;die;
+		$sql = "SELECT * FROM jobpost WHERE id = " . $id . " ";
+		$val = $this->db->query($sql);
+		$row = $val->row_array();
+		$file = $row['file'];
+		
+		$filename=strstr($file, '/',true);
+		//echo $filename ;die;
+		$path = './uploads/jobpost/'.$filename;
+		unlink($path);		
+		$this->adminjobpost_model->delete_jobpost($id);
+		$this->session->set_flashdata('success_message', 'Successfully Deleted');
+        redirect('admin/joblist');
+      } else {
+		$this->session->set_flashdata('error_message', ' Not Deleted');
+        redirect('admin/joblist');
+      }
+		
+    }//delete
+	
+	
+	public function deleteall()
+    {
+		$id= $this->input->post('id');
+		
+		
+		$sql1= "SELECT * FROM jobpost WHERE id IN (".$id.")";
+		//echo  $sql1;die;
+		$val1 = $this->db->query($sql1);
+		$result = $val1->result();
+		foreach($result as $row){
+			$file = $row->file;
+			$filename=explode("##", $file);
+			array_pop($filename);
+			$count=count($filename);
+			
+			 for($i=0;$i<=$count-1;$i++){
+		
+			$path[$i] = './uploads/jobpost/'.$filename[$i];
+			unlink($path[$i]);
+			 }
+		}
+		$sql ="DELETE FROM jobpost WHERE id IN (".$id.")";
+		
+		$val = $this->db->query($sql);
+		if($val){
+			$sql2 ="DELETE FROM bidjob WHERE id IN (".$id.")";
+		$val2 = $this->db->query($sql2);
+		
+		$sql3 ="DELETE FROM invoice WHERE id IN (".$id.")";
+		$val3 = $this->db->query($sql3);
+		
+		$sql4 ="DELETE FROM ajax_chat_messages WHERE id IN (".$id.")";
+		$val4 = $this->db->query($sql4);
+		
+		$sql3 ="DELETE FROM send_invitation WHERE id IN (".$id.")";
+		$val3 = $this->db->query($sql3);
+			echo "delete successfully";
+		}
+		
+		
+	}
+   public function bid_job()
+   {
+				
+        $job_id= $this->uri->segment(2);    
+        $search_string = $this->input->post('search_string'); 				    
+        $order = $this->input->post('order'); 
+        $order_type = $this->input->post('order_type'); 
+
+        //pagination settings
+        $config['per_page'] =10;
+        $config['base_url'] = base_url().'bidjob/'.$job_id.'/';
+        $config['use_page_numbers'] = TRUE;
+        $config['num_links'] = 20;
+        $config['full_tag_open'] = '<ul>';
+        $config['full_tag_close'] = '</ul>';
+        $config['num_tag_open'] = '<li>';
+        $config['num_tag_close'] = '</li>';
+        $config['cur_tag_open'] = '<li class="active"><a>';
+        $config['cur_tag_close'] = '</a></li>';
+        
+        $page = $this->uri->segment(3);
+        
+        $limit_end=($page * $config['per_page']) - $config['per_page'];
+        if ($limit_end < 0){
+            $limit_end = 0;
+        } 
+
+       
+        if($order_type){
+            $filter_session_data['order_type'] = $order_type;
+        }
+        else{
+           
+            if($this->session->userdata('order_type')){
+                $order_type = $this->session->userdata('order_type');    
+            }else{
+               
+                $order_type = 'Asc';    
+            }
+        }
+       
+        $data['order_type_selected'] = $order_type;        
+
+        if($search_string !='' || $order !='' || $this->uri->segment(3) == true){         
+            
+			 if($search_string){
+                $filter_session_data['search_string_selected'] = $search_string;
+            }else{
+                $search_string =$this->session->userdata('search_string_selected');
+				$filter_session_data['search_string_selected'] = $search_string;
+            }
+            $data['search_string_selected'] = $search_string;
+
+            if($order){
+                $filter_session_data['order'] = $order;
+            }
+            else{
+                $order =$this->session->userdata('order');
+            }
+            $data['order'] = $order;
+
+            //save session data into the session
+            $this->session->set_userdata($filter_session_data); 
+
+         
+
+            $data['count_bidjob']= $this->adminbidjob_model->count_bidjob($search_string, $order);
+            $config['total_rows'] = $data['count_bidjob'];
+
+            //fetch sql data into arrays
+            if($search_string){
+                if($order){
+                    $data['bidjob'] = $this->adminbidjob_model->get_bidjob($search_string, $order, $order_type, $config['per_page'],$limit_end);        
+                }else{
+                    $data['bidjob'] = $this->adminbidjob_model->get_bidjob($search_string, '', $order_type, $config['per_page'],$limit_end);           
+                }
+            }else{
+                if($order){
+                    $data['bidjob'] = $this->adminbidjob_model->get_bidjob('', $order, $order_type, $config['per_page'],$limit_end);        
+                }else{
+                    $data['bidjob'] = $this->adminbidjob_model->get_bidjob('', '', $order_type, $config['per_page'],$limit_end);        
+                }
+            }
+
+        }else{
+
+            //clean filter data inside section            
+            $filter_session_data['search_string_selected'] = null;	
+			$filter_session_data['order'] = null;
+            $filter_session_data['order_type'] = null;
+            $this->session->set_userdata($filter_session_data);
+
+            //pre selected options
+            $data['search_string_selected'] = '';
+            $data['order'] = 'id';
+
+            //fetch sql data into arrays
+            
+            $data['count_bidjob']= $this->adminbidjob_model->count_bidjob();
+            $data['bidjob'] = $this->adminbidjob_model->get_bidjob('', '', $order_type, $config['per_page'],$limit_end);        
+            $config['total_rows'] = $data['count_bidjob'];
+
+          }
+        $this->pagination->initialize($config);       
+	    $this->load->view('admin/jobpost/vwBidjob',$data);
+		
+ }
+ 
+ 
+    public function bidjobedit()
+	{
+	if($this->session->userdata('is_admin')){
+        $id= $this->uri->segment(3);
+		//echo $id;die;
+		$sql="SELECT * FROM `bidjob` where `id`='$id' ";
+		$qry=$this->db->query($sql);
+		if($qry->num_rows()=='1')
+		{
+        $data['fetch']=$qry->row();
+		$this->load->view('admin/vwEditbidjob', $data);
+		}
+		
+      } else {
+        $this->session->set_flashdata('error_message', 'Not Permited');
+        redirect('admin/index');
+      }
+	}
+	
+	
+	function editbidjobprofile() { 
+	
+		
+		if(!$this->session->userdata('is_admin')){
+			$this->load->view('admin/vwLogin');	
+		} else {		
+			$id= $this->uri->segment(3);   
+			//echo $job_id;die;
+			$this->form_validation->set_rules('time_need', 'Time Needed', 'trim|required');
+			
+			if($this->form_validation->run() == FALSE) {
+				//$this->session->set_flashdata('flash_error','Error Validation');
+				//redirect('admin_jobpost/edit/'.$job_id);
+			} else {
+					  
+				    if($_FILES['userfile']['size'] != 0){
+					$upload_dir = './uploads/bidjobpost/';
+					if (!is_dir($upload_dir)) {
+						 mkdir($upload_dir);
+					}	
+					$config['upload_path']   = $upload_dir;
+					$config['allowed_types'] = 'jpeg|jpg|png|doc|docx|txt|pdf|xls|zip';
+					$config['file_name']     = time();
+					$config['overwrite']     = false;
+					$config['max_size']	 = '20000';
+					
+					$this->load->library('upload', $config);
+					if (!$this->upload->do_upload('userfile')){
+						//$data = array('message_error' => $this->upload->display_errors());
+					} else {
+						$upload_data = $this->upload->data();
+						$filename = $upload_data['file_name'];
+					$stage=$this->input->post('stage');
+					if($stage==1){
+					 $sql = "UPDATE `bidjob` SET 
+					`time_need` = '".$this->input->post('time_need')."', 
+				    `file`    = '".$filename."',
+					`stage` = '".$this->input->post('stage')."',
+					`working_date` ='".date('Y-m-d h:i:s')."'
+					 WHERE `id` = '" .$id. "'";
+					}else{
+						$sql = "UPDATE `bidjob` SET 
+					`time_need` = '".$this->input->post('time_need')."', 
+				    `file`    = '".$filename."',
+					`stage` = '".$this->input->post('stage')."',
+					`completed_date` ='".date('Y-m-d h:i:s')."'
+					 WHERE `id` = '" .$id. "'";
+						}
+					 //delete previous file
+					$path = './uploads/bidjobpost/'.$this->input->post('prefile');
+					unlink($path);
+				
+				$val = $this->db->query($sql);
+			
+                if($val == TRUE){
+                     $this->session->set_flashdata('success_message', 'Successfully Updated');
+                    redirect('admin_jobpost/bidjobedit/'.$id);
+                }else{
+                   $this->session->set_flashdata('error_message', 'Not Updated');
+                    redirect('admin_jobpost/bidjobedit/'.$id);
+                }
+                
+				}
+						
+						
+						
+				} 
+				else {
+					
+					if($this->input->post('prefile') != "")  {	
+					$stage=$this->input->post('stage');
+					if($stage==1){
+					  $sql = "UPDATE `bidjob` SET 
+					`time_need` = '".$this->input->post('time_need')."',
+					`stage` = '".$this->input->post('stage')."',
+					`working_date` ='".date('Y-m-d h:i:s')."'
+				     WHERE `id` = '" .$id. "'";
+					 }
+					 else{
+						 $sql = "UPDATE `bidjob` SET 
+					`time_need` = '".$this->input->post('time_need')."', 
+					`stage` = '".$this->input->post('stage')."',
+					`complete_date` ='".date('Y-m-d h:i:s')."'
+					 WHERE `id` = '" .$id. "'";
+						 }
+					 
+				    $val = $this->db->query($sql);
+					//echo '<pre>'; print_r($sql); die;
+					$this->session->set_flashdata('success_message', 'Successfully Updated');
+                    redirect('admin_jobpost/bidjobedit/'.$id);
+					} else {						
+					$this->session->set_flashdata('error_message', 'Not Updated');
+                    redirect('admin_jobpost/bidjobedit/'.$id);
+					}
+					
+				}  
+					  
+	      }
+	    $sql="SELECT * FROM `bidjob` where `id`='$id' ";
+		$qry=$this->db->query($sql);
+		if($qry->num_rows()=='1')
+		{
+        $data['fetch']=$qry->row();
+		$this->load->view('admin/vwEditbidjob', $data);
+		}
+		}
+	}
+	
+	 public function bidjobdelete()
+    {		
+	if($this->session->userdata('is_admin')){
+       $job_id = $this->uri->segment(3);
+	   $id = $this->uri->segment(4);
+	  
+		$sql = "SELECT * FROM bidjob WHERE `id` = " . $id . " ";
+		$val = $this->db->query($sql);
+		$row = $val->row_array();
+		$file = $row['file'];
+		$path = './uploads/bidjobpost/'.$file;
+		if($path){
+		unlink($path);	
+		}
+		$this->adminbidjob_model->delete_bidjob($id);
+		$this->session->set_flashdata('success_message', 'Successfully Deleted');
+        redirect('bidjob/'.$job_id);
+      } else {
+		$this->session->set_flashdata('error_message', ' Not Deleted');
+        redirect('bidjob/'.$job_id);
+      }
+		
+    }
+	
+	public function awardupdate()
+    {
+	
+	if($this->session->userdata('is_admin')){
+      $data['message_error'] = "";
+		$data['message_success'] = "";
+        //artist id 
+        $id = $this->uri->segment(3);
+		$job_id = $this->uri->segment(4);
+		if($id!='')
+		{   $date=date('Y-m-d h-i-s');
+			/*$sql1= "UPDATE `jobpost` SET `stage` = '2' WHERE `id` = '" . $job_id . "'";
+   			$val1 = $this->db->query($sql1);*/
+			$sql = "UPDATE `bidjob` SET `awarded` = '1',`stage` = '1',`award_date`='$date',`working_date`='$date' WHERE `id` = '" . $id . "'";
+			$val = $this->db->query($sql); 
+		
+			if($val)
+			{
+		    $transql="select `trans_id` from `bidjob` where `id`='$id'";
+			$tranval=$this->db->query($transql); 
+			$tranfetch=$tranval->row();
+			$trans_id=$tranfetch->trans_id;
+			
+			$jobsql="select * from `jobpost` where `id`='$job_id'";
+			$jobval=$this->db->query($jobsql); 
+			$jobfetch=$jobval->row();
+			$job_name=$jobfetch->name;
+			$job_description=$jobfetch->description;
+			$job_created=$jobfetch->created;
+			$job_alias=$jobfetch->alias;
+			
+			$emailsql="select * from `translator` where `id`='$trans_id'";
+			$emailval=$this->db->query($emailsql); 
+			$emailfetch=$emailval->row();
+			$trans_email=$emailfetch->email_address;
+			$trans_name=$emailfetch->first_name.'&nbsp;'.$emailfetch->last_name;
+			
+			
+			//echo $trans_name;die;
+			
+		
+			$data['name'] = $trans_name;
+			$data['job_name'] =$job_name;
+			$data['job_description'] =$job_description;
+			$data['job_created'] =$job_created;
+			$data['job_alias'] =$job_alias;
+			
+			$mailTo =$trans_email;
+			$mailName =$trans_name;
+			$this->email->set_mailtype("html");
+			$this->email->from('info@montesinotranslation.com');
+			$this->email->to($mailTo);
+			$this->email->subject('Award Job Confirmation');
+			$html_email = $this->load->view('email/vwTranslatorAwardConfirmation', $data ,true);
+			$this->email->message($html_email);
+			$this->email->send();
+			
+			
+			
+			$this->session->set_flashdata('success_message', 'Successfully Awarded');
+			$referrer=$this->agent->referrer();
+		    redirect($referrer);
+			}
+		}
+		else
+		{
+		   $this->session->set_flashdata('error_message', 'Sorry, some problem occured. Please try again');
+			$referrer=$this->agent->referrer();
+		    redirect($referrer);
+		}   
+      } else {
+        redirect('admin/index');
+      }
+	  
+	  
+		       
+
+    }//update
+	
+	public function awardcupdate()
+    {
+	
+	if($this->session->userdata('is_admin')){
+      $data['message_error'] = "";
+		$data['message_success'] = "";
+        //artist id 
+        $id = $this->uri->segment(3);
+		$job_id = $this->uri->segment(4);
+		//echo 'testcupdate'.$id;die;
+		if($id!='')
+		{   
+			$sql = "UPDATE `bidjob` SET `awarded` = '0',`stage` = '0' WHERE `id` = '" . $id . "'";
+			$val = $this->db->query($sql); 
+			$this->session->set_flashdata('success_message', 'Successfully Unawarded');
+			$referrer=$this->agent->referrer();
+		    redirect($referrer);
+		} 
+		else
+		{
+		    $this->session->set_flashdata('error_message', 'Sorry, some problem occured. Please try again');
+			$referrer=$this->agent->referrer();
+		    redirect($referrer);
+		}  
+      } else {
+        redirect('admin/index');
+      }
+	  
+		        
+
+    }
+	public function cancelupdate()
+    {
+	
+	if($this->session->userdata('is_admin')){
+      $data['message_error'] = "";
+		$data['message_success'] = "";
+        //artist id 
+        $id = $this->uri->segment(3);
+		$job_id = $this->uri->segment(4);
+		//echo 'testcanupdate'.$id;die;
+	
+		if($id!='')
+		{   $date=date('Y-m-d h-i-s');
+			$sql = "UPDATE `bidjob` SET `canceled` = '1',`cancel_date`='$date' WHERE `id` = '" . $id . "'";
+			$val = $this->db->query($sql); 
+			$this->session->set_flashdata('success_message', 'Successfully Canceled');
+			$referrer=$this->agent->referrer();
+		    redirect($referrer);
+		}
+		else
+		{
+		   $this->session->set_flashdata('error_message', 'Sorry, some problem occured. Please try again');
+			$referrer=$this->agent->referrer();
+		    redirect($referrer);
+		}   
+      } else {
+        redirect('admin/index');
+      }
+	  
+	  
+		       
+
+    }//update
+	
+	public function cancelcupdate()
+    {
+	
+	if($this->session->userdata('is_admin')){
+      $data['message_error'] = "";
+		$data['message_success'] = "";
+        //artist id 
+        $id = $this->uri->segment(3);
+		$job_id = $this->uri->segment(4);
+		//echo 'testcancupdate'.$id;die;
+		if($id!='')
+		{   
+			$sql = "UPDATE `bidjob` SET `canceled` = '0' WHERE `id` = '" . $id . "'";
+			$val = $this->db->query($sql); 
+			$this->session->set_flashdata('success_message', 'Successfully Uncanceled');
+			$referrer=$this->agent->referrer();
+		    redirect($referrer);
+		} 
+		else
+		{
+		    $this->session->set_flashdata('error_message', 'Sorry, some problem occured. Please try again');
+			$referrer=$this->agent->referrer();
+		    redirect($referrer);
+		}  
+      } else {
+        redirect('admin/index');
+      }
+	  
+		        
+
+    }
+	 public function invoice()
+   {
+	$data['id'] = $this->uri->segment(3);
+	$data['job_id'] = $this->uri->segment(4); 
+	$data['trans_id'] = $this->uri->segment(5);
+	$this->load->view('admin/vwAwardInvoice',$data);
+	   
+   }
+
+   public function send_invoice()
+   {        
+            $bid_id = $this->input->post('bid_id');
+	        $job_id = $this->input->post('job_id');
+	        $trans_id = $this->input->post('trans_id');
+			$comp_time = $this->input->post('comp_time');
+			$invoice_id=$this->input->post('invoice_id');
+			$invoice_desc=$this->input->post('invoice_desc');
+			$job_title=$this->input->post('job_title');
+			$job_price=$this->input->post('job_price');
+			$award_date=$this->input->post('award_date');
+			
+	        //echo'test';die; 
+	        $jobsql="select * from `jobpost` where `id`='$job_id'";
+			$jobval=$this->db->query($jobsql); 
+			$jobfetch=$jobval->row();
+			$job_name=$jobfetch->name;
+			$job_description=$jobfetch->description;
+			$job_created=$jobfetch->created;
+			$job_alias=$jobfetch->alias;
+			
+			$emailsql="select * from `translator` where `id`='$trans_id'";
+			$emailval=$this->db->query($emailsql); 
+			$emailfetch=$emailval->row();
+			$trans_email=$emailfetch->email_address;
+			$trans_name=$emailfetch->first_name.'&nbsp;'.$emailfetch->last_name;
+			
+			
+			//echo $trans_name;die;
+			
+		    
+			$data['invoice_id'] = $invoice_id;
+			$data['name'] = $trans_name;
+			$data['job_title'] =$job_title;
+			$data['invoice_desc'] =$invoice_desc;
+			$data['award_date'] =$award_date;
+			$data['job_alias'] =$job_alias;
+			$data['job_price'] =$job_price;
+			$data['comp_time'] =$comp_time;
+			
+			$mailTo =$trans_email;
+			$mailName =$trans_name;
+			$this->email->set_mailtype("html");
+			$this->email->from('info@montesinotranslation.com');
+			$this->email->to($mailTo);
+			$this->email->subject('Awarded Job Invoice');
+			$html_email = $this->load->view('email/vwAwardedJobInvoice', $data ,true);
+			$this->email->message($html_email);
+			$mail=$this->email->send();
+			if($mail){			
+			        
+			        $data_to_store = array(
+					'bid_id' =>$bid_id,
+                    'invoice_id' =>$invoice_id,
+					'job_id'=>$job_id,
+					'trans_id' => $trans_id,
+                    'description' =>$invoice_desc,					
+					'created' => date('Y-m-d h:i:s')
+                );
+				//echo '<pre>'; print_r($data_to_store);die;
+                //if the insert has returned true then we show the flash message
+                if($this->adminjobpost_model->store_invoice($data_to_store))
+				{
+				$this->session->set_flashdata('success_message', 'Successfully Send  Awarded Invoice');
+			    redirect('bidjob/'.$job_id); 
+				}
+			}
+			
+	}
+	
+	public function reinvoice()
+   {
+	$data['id'] = $this->uri->segment(3);
+	$data['job_id'] = $this->uri->segment(4); 
+	$data['trans_id'] = $this->uri->segment(5);	
+	$this->load->view('admin/vwReAwardInvoice',$data);
+	   
+   }
+
+   public function resend_invoice()
+   {        
+            $bid_id = $this->input->post('bid_id');
+	        $job_id = $this->input->post('job_id');
+	        $trans_id = $this->input->post('trans_id');
+			$comp_time = $this->input->post('comp_time');
+			$invoice_id=$this->input->post('invoice_id');
+			$invoice_desc=$this->input->post('invoice_desc');
+			$job_title=$this->input->post('job_title');
+			$job_price=$this->input->post('job_price');
+			$award_date=$this->input->post('award_date');
+			
+	        //echo'test';die; 
+	        $jobsql="select * from `jobpost` where `id`='$job_id'";
+			$jobval=$this->db->query($jobsql); 
+			$jobfetch=$jobval->row();
+			$job_name=$jobfetch->name;
+			$job_description=$jobfetch->description;
+			$job_created=$jobfetch->created;
+			$job_alias=$jobfetch->alias;
+			
+			$emailsql="select * from `translator` where `id`='$trans_id'";
+			$emailval=$this->db->query($emailsql); 
+			$emailfetch=$emailval->row();
+			$trans_email=$emailfetch->email_address;
+			$trans_name=$emailfetch->first_name.'&nbsp;'.$emailfetch->last_name;
+			
+			
+			$bidsql="select * from `bidjob` where `id`='$bid_id'";
+			$bidval=$this->db->query($bidsql); 
+			$bidfetch=$bidval->row();		
+			$complete_date=$bidfetch->complete_date;
+			
+			
+			
+			
+			//echo $trans_name;die;
+			
+		    
+			$data['invoice_id'] = $invoice_id;
+			$data['name'] = $trans_name;
+			$data['job_title'] =$job_title;
+			$data['invoice_desc'] =$invoice_desc;
+			$data['award_date'] =$award_date;
+			$data['complete_date'] =$complete_date;			
+			$data['job_alias'] =$job_alias;
+			$data['job_price'] =$job_price;
+			$data['comp_time'] =$comp_time;
+			
+			$mailTo =$trans_email;
+			$mailName =$trans_name;
+			$this->email->set_mailtype("html");
+			$this->email->from('info@montesinotranslation.com');
+			$this->email->to($mailTo);
+			$this->email->subject('Job Completion Invoice');
+			$html_email = $this->load->view('email/vwJobCompletionReInvoice', $data ,true);
+			$this->email->message($html_email);
+			$mail=$this->email->send();
+			if($mail){			
+			        
+			        $data_to_store = array(
+					'bid_id' =>$bid_id,
+                    'invoice_id' =>$invoice_id,
+					'job_id'=>$job_id,
+					'trans_id' => $trans_id,
+                    'description' =>$invoice_desc,					
+					'modified' => date('m-d-Y h:i:s')
+                );
+				//echo '<pre>'; print_r($data_to_store);die;
+                //if the insert has returned true then we show the flash message
+                if($this->adminjobpost_model->store_reinvoice($data_to_store,$bid_id))
+				{
+				$this->session->set_flashdata('success_message', 'Successfully resent invoice');
+			    //redirect('bidjob/'.$job_id); 
+				$referrer=$this->agent->referrer();
+		        redirect($referrer);
+				}
+			}
+			
+	}
+	
+		public function viewbid()
+   {
+	   if($this->session->userdata('is_admin')){
+	$data['job_id'] = $this->uri->segment(3);
+	$this->load->view('translator/vwdetailsbidjob',$data);
+	}
+	   
+   }
+		public function viewbiddetails()
+   {
+	   if($this->session->userdata('is_admin')){
+	 $data['bid_id'] = $this->uri->segment(3);
+	$this->load->view('admin/vwdetailsbid',$data);
+	}
+	   
+   }
+	
+	public function message()
+   {
+	$data['id'] = $this->uri->segment(3);
+	$data['job_id'] = $this->uri->segment(4); 
+	$data['trans_id'] = $this->uri->segment(5);
+	$this->load->view('admin/vwMessage',$data);
+	   
+   }
+
+   public function send_message()
+   {        
+            $bid_id = $this->input->post('bid_id');
+	        $job_id = $this->input->post('job_id');
+	        $trans_id = $this->input->post('trans_id');
+			//$comp_time = $this->input->post('comp_time');
+			//$invoice_id=$this->input->post('invoice_id');
+			$message=$this->input->post('message');
+			$job_title=$this->input->post('job_title');
+			$job_price=$this->input->post('job_price');
+			$award_date=$this->input->post('award_date');
+			
+	        //echo'test';die; 
+	        $jobsql="select * from `jobpost` where `id`='$job_id'";
+			$jobval=$this->db->query($jobsql); 
+			$jobfetch=$jobval->row();
+			$job_name=$jobfetch->name;
+			$job_description=$jobfetch->description;
+			$job_created=$jobfetch->created;
+			$job_alias=$jobfetch->alias;
+			
+			$emailsql="select * from `translator` where `id`='$trans_id'";
+			$emailval=$this->db->query($emailsql); 
+			$emailfetch=$emailval->row();
+			$trans_email=$emailfetch->email_address;
+			$trans_name=$emailfetch->first_name.'&nbsp;'.$emailfetch->last_name;
+			$upload_dir = './uploads/message';
+				if (!is_dir($upload_dir)) {
+					 mkdir($upload_dir);
+				}	
+				$config['upload_path']   = $upload_dir;
+				$config['allowed_types'] = 'jpeg|jpg|png|doc|docx|txt|pdf|xls|zip';
+				$config['file_name']     = time();
+				$config['overwrite']     = false;
+				$config['max_size']	 = '20000';
+				$this->load->library('upload', $config);
+				$this->upload->do_upload('file');
+				$upload_data = $this->upload->data();
+				$filename = $upload_data['file_name'];			
+				$image_config["image_library"] = "GD2";
+				$image_config["source_image"] = $upload_data["full_path"];
+				$image_config['create_thumb'] = FALSE;
+				$image_config['maintain_ratio'] = TRUE;
+			
+			//echo $trans_name;die;
+		/*	 $data_to_store = array(
+					'bid_id' =>$bid_id,
+					'job_id'=>$job_id,
+					'trans_id' => $trans_id,
+                    'text' =>$message,
+					'file'=>$filename,					
+					'created' => date('Y-m-d h:i:s')
+                );
+		    $this->adminjobpost_model->store_message($data_to_store);die;*/
+			
+			$data['name'] = $trans_name;
+			$data['job_title'] =$job_title;
+			$data['message'] =$message;
+			$data['award_date'] =$award_date;
+			$data['job_alias'] =$job_alias;
+			$data['job_price'] =$job_price;
+			$data['file'] =$filename;
+			//$data['comp_time'] =$comp_time;
+			
+			//$this->adminjobpost_model->store_message($data); die;
+			
+			$mailTo =$trans_email;
+			$mailName =$trans_name;
+			$this->email->set_mailtype("html");
+			$this->email->from('info@montesinotranslation.com');
+			$this->email->to($mailTo);
+			$this->email->subject('Message');
+			$html_email = $this->load->view('email/vwMessageMail', $data ,true);
+			$this->email->message($html_email);
+			if($_FILES['file']['name']!=''){
+			$path = set_realpath('uploads/message');
+			$this->email->attach($path . $filename);
+			}
+			$mail=$this->email->send();
+			if($mail){			
+			        $data_to_store = array(
+					'bid_id' =>$bid_id,
+					'job_id'=>$job_id,
+					'trans_id' => $trans_id,
+					'type'=>'0',
+                    'text' =>$message,
+					'file'=>$filename,					
+					'created' => date('Y-m-d h:i:s')
+                );
+				//echo '<pre>'; print_r($data_to_store);die;
+                //if the insert has returned true then we show the flash message
+                if($this->adminjobpost_model->store_message($data_to_store))
+				{
+				$this->session->set_flashdata('success_message', 'Successfully Send  Message');
+			    redirect('bidjob/'.$job_id); 
+				}
+			}
+			
+	}
+	
+	
+	
+	public function jobupdate()
+	{
+	
+	
+	if($this->session->userdata('is_admin')){
+      
+        
+		    $job_id = $this->uri->segment(3);
+		
+		    $sql1= "UPDATE `jobpost` SET `stage` = '1' WHERE `id` = '" . $job_id . "'";
+			$val1 = $this->db->query($sql1); 
+			if($val1)
+			{
+		    $this->session->set_flashdata('success_message', 'This job was mark as Completed');
+			$referrer=$this->agent->referrer();
+		    redirect($referrer);
+			}
+		  
+      } else {
+        redirect('admin/index');
+      }	  
+    }
+		public function jobcupdate()
+	{
+	
+	
+	if($this->session->userdata('is_admin')){
+      
+        
+		$job_id = $this->uri->segment(3);
+		
+		    $sql1= "UPDATE `jobpost` SET `stage` = '2' WHERE `id` = '" . $job_id . "'";
+			$val1 = $this->db->query($sql1); 
+			if($val1)
+			{
+		    $this->session->set_flashdata('success_message', 'This job was mark as Working');
+			$referrer=$this->agent->referrer();
+		    redirect($referrer);
+			}
+		  
+      } else {
+        redirect('admin/index');
+      }	  
+    }
+	
+			
+}

@@ -1,0 +1,13 @@
+<?php
+$this->load->view('email/includes/vwHeader');
+?>
+
+<div class="container">
+Hi, <?php echo $name; ?> <br />
+    <?php echo $content; ?> 
+</div>
+
+
+<?php
+$this->load->view('email/includes/vwFooter');
+?>

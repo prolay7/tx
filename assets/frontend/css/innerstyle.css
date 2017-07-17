@@ -1,0 +1,199 @@
+@charset "utf-8";
+/* CSS Document */
+h1{
+	color:#fff;
+	font-family:'Open Sans', sans-serif;
+	font-style:italic;
+	text-align:center;
+	
+	
+	}
+#p{
+	color:#fff;
+	font-family: 'Open Sans', sans-serif;
+	font-style:italic;
+	text-align:center;
+	font-size:30px;
+	line-height: 30px;
+    padding-bottom: 20px;
+}
+.carousel-inner>.item>a>img, .carousel-inner>.item>img, .img-responsive, .thumbnail a>img, .thumbnail>img{
+	//display: block;
+    //max-width: 90%;
+    //height: auto;
+	margin:0 auto;
+}
+
+		
+.wrapper{
+	background-image:url("../images/background.png");
+	width:100%;
+	height:auto;
+	padding-top: 20px;
+}
+#music{
+	width:905px;
+	margin:0 auto;
+}
+#button{
+
+	margin-top:20px;
+	background-image:url(../images/pink%20button.png);
+	width:224px;
+	color:#fff;
+	font-style:italic;
+	
+}
+#button1{
+
+	margin-top:20px;
+	background-image:url(../images/blue%20button.png);
+	width:224px;
+	color:#fff;
+	font-style:italic;
+}
+#loc{
+	
+	width:200px;
+	height:50px;
+	color:#d1d1;
+	font-size:16px;
+	margin-top:20px;
+}
+#loc p{ font-weight:bold;}
+span.locationstart{ font-weight:normal;}
+.into{
+	color:#000000;
+	font-family: 'Open Sans', sans-serif;
+	font-style:italic;
+	text-align:center;
+	font-size: 25px;
+    line-height: 20px;
+	text-transform:uppercase;
+}
+p.sinto{color:#000000;
+	font-family: 'Open Sans', sans-serif;
+	font-size: 20px;
+    line-height: 20px;}
+#intro1{
+	font-family: 'Open Sans', sans-serif;
+	font-size:16px;
+	color:#000;
+}
+.top1{
+	padding-left:0px;
+}
+.top{
+	margin-top:12px;
+}
+#h3{
+font-size:16px;
+text-align:right;
+
+	
+}
+#navmid{
+	
+	margin-top:40px;
+	background-color:#000;
+	
+	}
+	#navmid ul li a{
+		color:#fff;
+		border-radius: 0;
+        border: none;
+		font-family: 'Open Sans', sans-serif;
+		font-size:16px;
+	}
+	#navmid ul li a:hover{
+		background-color: #e24348;
+	}
+	
+	.jssort03{ background:none !important;}
+	p.tab_content{ font-family:Arial, Helvetica, sans-serif; font-size:15px;}
+	.youmay_like{ text-align:center; font-size:16px; color:#999999; padding-bottom:20px;}
+.under_slider{ padding-top:10px; text-align:center;}
+.carali{ border:1px solid #000000;}	
+.bcaratitle{ color: #000;
+    font-size: 17px;
+    text-align: center;
+    padding-top: 20px;
+    text-transform: uppercase;
+    font-weight: normal;}
+.bcaratitle p{ font-size:16px; color:#999999;padding-top: 35px; padding-bottom: 35px;}
+.cara_bot{ border-top:1px solid #999999;}
+.caraloc{ font-size:14px; color:#999999; float:left;padding-top: 3px; padding-left:10px;}
+.caravol{float:right; width:50px; border-left:1px solid #999999;font-size: 16px; padding-top: 5px;}
+#jumb{
+	margin-top:10px;
+}
+#top1{
+	margin-top:40px;
+	background:#f4f4f5;
+}
+.nav-justified .active>a{
+background-color:#e24348 !important
+}
+.wrapper1{
+	background-color:#f4f4f5;
+	margin-top: 20px;
+	padding-bottom: 20px;
+}
+.carousel-inner{
+	background-color:#000;
+	height:300px;
+}
+.carousel-inner > .item > img,
+  .carousel-inner > .item > a > img {
+      width: 70%;
+      margin: auto;
+	  margin-top:30px;
+	  margin-bottom:30px;
+	  background-color:#000;
+  }
+.hslider{
+	margin-top:20px;
+}
+.jssora03l, .jssora03r {
+                display: block;
+                position: absolute;
+                /* size of arrow element */
+                width: 55px;
+                height: 55px;
+                cursor: pointer;
+                background: url(../img/a03.png) no-repeat;
+                overflow: hidden;
+            }
+            .jssora03l { background-position: -3px -33px; }
+            .jssora03r { background-position: -63px -33px; }
+            .jssora03l:hover { background-position: -123px -33px; }
+            .jssora03r:hover { background-position: -183px -33px; }
+            .jssora03l.jssora03ldn { background-position: -243px -33px; }
+            .jssora03r.jssora03rdn { background-position: -303px -33px; 
+			 .jssorb03 {
+                position: absolute;
+            }
+            .jssorb03 div, .jssorb03 div:hover, .jssorb03 .av {
+                position: absolute;
+                /* size of bullet elment */
+                width: 21px;
+                height: 21px;
+                text-align: center;
+                line-height: 21px;
+                color: white;
+                font-size: 12px;
+                background: url(../img/b03.png) no-repeat;
+                overflow: hidden;
+                cursor: pointer;
+            }
+            .jssorb03 div { background-position: -5px -4px; }
+            .jssorb03 div:hover, .jssorb03 .av:hover { background-position: -35px -4px; }
+            .jssorb03 .av { background-position: -65px -4px; }
+            .jssorb03 .dn, .jssorb03 .dn:hover { background-position: -95px -4px; }
+           .wor{
+			   border:1px solid red;
+		   }
+
+
+
+	

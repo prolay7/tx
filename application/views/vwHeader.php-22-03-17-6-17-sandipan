@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html class="no-js pattern_1">
+<head>
+<?php
+$sql="select `title` from `settings`";
+$query=$this->db->query($sql);
+$fetch=$query->row();
+$title=$fetch->title;
+?>
+<title><?php echo $title;?></title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no"/>
+<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Lato:300,400,700&amp;subset=latin,latin-ext"/>
+<link href='http://fonts.googleapis.com/css?family=Roboto+Condensed:400,700' rel='stylesheet' type='text/css'>
+<link href="<?php echo HTTP_FRONT_ASSETS_PATH_ADMIN; ?>css/font-awesome.css" rel="stylesheet" type="text/css" />
+<link href="<?php echo HTTP_FRONT_ASSETS_PATH_ADMIN; ?>css/font-awesome-ie7.css" rel="stylesheet" type="text/css" />
+<link rel="stylesheet" href="<?php echo HTTP_FRONT_ASSETS_PATH_ADMIN; ?>css/ace.simplified.css" />
+<link href="<?php echo HTTP_FRONT_ASSETS_PATH_ADMIN; ?>css/bootstrap.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="<?php echo HTTP_FRONT_ASSETS_PATH_ADMIN; ?>css/style_main.css"/>
+<link rel="stylesheet" href="<?php echo HTTP_CSS_PATH; ?>datepicker.css" />
+<link href="<?php echo HTTP_FRONT_ASSETS_PATH_ADMIN; ?>css/bootstrap-responsive.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="<?php echo HTTP_FRONT_ASSETS_PATH_ADMIN; ?>css/reset.css"/>
+<link id="color_css" rel="stylesheet" type="text/css" href="<?php echo HTTP_FRONT_ASSETS_PATH_ADMIN; ?>css/color_scheme_2.css"/>
+<!--<link id="color_css" rel="stylesheet" type="text/css" href="<?php echo HTTP_FRONT_ASSETS_PATH_ADMIN; ?>css/color_scheme_1.css"/>-->
+<link rel="stylesheet" type="text/css" href="<?php echo HTTP_FRONT_ASSETS_PATH_ADMIN; ?>css/jquery.combosex.css"/>
+<link rel="stylesheet" type="text/css" href="<?php echo HTTP_FRONT_ASSETS_PATH_ADMIN; ?>css/jquery.flexslider.css"/>
+<link rel="stylesheet" type="text/css" href="<?php echo HTTP_FRONT_ASSETS_PATH_ADMIN; ?>css/jquery.scrollbar.css"/>
+  <link rel="stylesheet" href="<?php echo HTTP_ASSETS_PATH_ADMIN; ?>css/validationEngine.jquery.css">
+   <link href="assets/css/style.css" rel="stylesheet" />
+
+	<!-- uploadify STYLE CSS -->
+    <link rel="stylesheet" type="text/css" href="uploadify.css">
+
+<!--[if (lte IE 9)]>
+    <link rel="stylesheet" type="text/css" href="css/iefix.css"/>
+    <![endif]-->
+<script type="text/javascript" src="<?php echo HTTP_FRONT_ASSETS_PATH_ADMIN; ?>js/jquery.1.7.2.min.js"></script>
+<!-- <script type="text/javascript" src="<?php echo HTTP_ASSETS_PATH_ADMIN; ?>js/jquery-1.11.1.js"></script> -->
+<script type="text/javascript">
+ /*menu handler*/
+ $(function(){
+  function stripTrailingSlash(str) {
+   var resultArr = str.split('/');
+   if(resultArr[resultArr.length-1] == ''){
+    var str = resultArr[resultArr.length-2];
+   } else {
+    var str = resultArr[resultArr.length-1];
+   }
+   return str;
+  }
+
+  var url = window.location.pathname;
+  var activePage = stripTrailingSlash(url);
+  $('.menuclass').parent().removeClass('current');
+  $('.menuclass').each(function(){
+   var currentPage = stripTrailingSlash($(this).attr('href'));
+
+   if (activePage == currentPage) {
+    jQuery(this).parent().addClass('current');
+   }
+  });
+ });
+</script>
+<script type="text/javascript" src="<?php echo HTTP_FRONT_ASSETS_PATH_ADMIN; ?>js/jquery-ui.1.7.2.min.js"></script>
+<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+<script type="text/javascript" src="<?php echo HTTP_FRONT_ASSETS_PATH_ADMIN; ?>js/jquery.combosex.min.js"></script>
+<script type="text/javascript" src="<?php echo HTTP_FRONT_ASSETS_PATH_ADMIN; ?>js/jquery.flexslider-min.js"></script>
+<script type="text/javascript" src="<?php echo HTTP_FRONT_ASSETS_PATH_ADMIN; ?>js/jquery.mousewheel.js"></script>
+<script type="text/javascript" src="<?php echo HTTP_FRONT_ASSETS_PATH_ADMIN; ?>js/jquery.easytabs.min.js"></script>
+<script type="text/javascript" src="<?php echo HTTP_FRONT_ASSETS_PATH_ADMIN; ?>js/jquery.gmap.min.js"></script>
+<script type="text/javascript" src="<?php echo HTTP_FRONT_ASSETS_PATH_ADMIN; ?>js/jquery.scrollbar.min.js"></script>
+<script type="text/javascript" src="<?php echo HTTP_FRONT_ASSETS_PATH_ADMIN; ?>js/fitvids.js"></script><!-- fIt Video -->
+<script type="text/javascript" src="<?php echo HTTP_FRONT_ASSETS_PATH_ADMIN; ?>js/custom.js"></script>
+<script type="text/javascript" src="<?php echo HTTP_FRONT_ASSETS_PATH_ADMIN; ?>js/jquery.isotope.min.js"></script>
+<script type="text/javascript" src="<?php echo HTTP_ASSETS_PATH_ADMIN; ?>js/languages/jquery.validationEngine-en.js"></script>
+<script type="text/javascript" src="<?php echo HTTP_ASSETS_PATH_ADMIN; ?>js/jquery.validationEngine.js"></script>
+<script type="text/javascript" src="<?php echo HTTP_ASSETS_PATH_ADMIN; ?>js/parsley.js"></script>
+<script>
+    jQuery(document).ready(function(){
+        // binds form submission and fields to the validation engine
+        jQuery("#artist-registration").validationEngine();
+		jQuery("#user-registration").validationEngine();
+		jQuery("#login-form").validationEngine();
+		jQuery("#artist-forgotpass").validationEngine();
+		jQuery("#user-changeprofilepicture").validationEngine();
+		jQuery("#changeprofile").validationEngine();
+		jQuery("#requestForm").validationEngine();
+		jQuery("#images").validationEngine();
+
+    });
+</script>
+<script type="text/javascript">
+		jQuery(document).ready(function(){
+			get_not();
+
+		});
+		function get_not() {
+				//alert("hello");
+				$.ajax({
+					type: "POST",
+					url: "<?php echo base_url(); ?>" + "translator/notification1",
+					success: function (data, textStatus){
+					//alert(data);
+					setTimeout(function(){get_not();}, 5000);
+					if(data) {
+					$( "#addclassnot" ).addClass( "colful_not" );
+					}
+					//jQuery('#university').html(data);
+					if(parseInt(data) > 0) {
+						$('#noti').html('('+data+')');
+					}
+					}
+				});
+
+			}
+</script>
+<link rel="stylesheet" href="http://translatorexchange.com/development/assets/css/jquery-ui-1.12.1.min.css" />
+
+<script src="http://translatorexchange.com/development/assets/js/jquery-ui.custom.js"></script>
+                <script src="http://translatorexchange.com/development/assets/js/jquery-ui.js"></script>
+<style>
+.myButton {
+        -moz-box-shadow: 0px 1px 0px 0px #fff6af;
+        -webkit-box-shadow: 0px 1px 0px 0px #fff6af;
+        box-shadow: 0px 1px 0px 0px #fff6af;
+        background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #ffec64), color-stop(1, #ffab23));
+        background:-moz-linear-gradient(top, #ffec64 5%, #ffab23 100%);
+        background:-webkit-linear-gradient(top, #ffec64 5%, #ffab23 100%);
+        background:-o-linear-gradient(top, #ffec64 5%, #ffab23 100%);
+        background:-ms-linear-gradient(top, #ffec64 5%, #ffab23 100%);
+        background:linear-gradient(to bottom, #ffec64 5%, #ffab23 100%);
+        filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffec64', endColorstr='#ffab23',GradientType=0);
+        background-color:#ffec64;
+        -moz-border-radius:6px;
+        -webkit-border-radius:6px;
+        border-radius:6px;
+        border:1px solid #ffaa22;
+        display:inline-block;
+        cursor:pointer;
+        color:#333333;
+        font-family:Arial;
+        font-size:16px;
+        font-weight:bold;
+        padding:6px 24px;
+        text-decoration:none;
+        text-shadow:0px 1px 0px #ffee66;
+    }
+    .myButton:hover {
+        background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #ffab23), color-stop(1, #ffec64));
+        background:-moz-linear-gradient(top, #ffab23 5%, #ffec64 100%);
+        background:-webkit-linear-gradient(top, #ffab23 5%, #ffec64 100%);
+        background:-o-linear-gradient(top, #ffab23 5%, #ffec64 100%);
+        background:-ms-linear-gradient(top, #ffab23 5%, #ffec64 100%);
+        background:linear-gradient(to bottom, #ffab23 5%, #ffec64 100%);
+        filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffab23', endColorstr='#ffec64',GradientType=0);
+        background-color:#ffab23;
+    }
+    .myButton:active {
+        position:relative;
+        top:1px;
+    }
+</style>
+
+</head>
+<body>
+
+<?php if (!$this->session->userdata('is_translator')) { ?>
+<!-- Bar -->
+<div id="bar">
+    <div class="inner">
+        <ul id="user-menu">
+            <li id="login" class="first"><a href="<?php echo base_url()?>translator/login">Translator Login</a></li>
+        </ul>
+    </div>
+</div>
+<!-- /Bar -->
+<?php } ?>
+
+
+<!-- Header -->
+<div id="header">
+  <div class="inner">
+
+    <!-- Logo -->
+    <div id="logo">
+        <a href="<?php echo base_url()?>"><img src="<?php echo HTTP_FRONT_ASSETS_PATH_ADMIN; ?>images/Logo.png" width="205" height="50"  alt="logo"/></a><a class="menu-hider"></a>
+    </div>
+    <!-- /Logo -->
+
+      <?php
+		$sql1 = "SELECT * FROM cms WHERE id = '2'";
+        $val1 = $this->db->query($sql1);
+		$fetch1= $val1->row();
+
+
+		$sql2 = "SELECT * FROM cms WHERE id = '3'";
+        $val2 = $this->db->query($sql2);
+		$fetch2= $val2->row();
+
+
+		$sql3 = "SELECT * FROM cms WHERE id = '4'";
+        $val3 = $this->db->query($sql3);
+		$fetch3= $val3->row();
+
+
+		$sql4 = "SELECT * FROM cms WHERE id = '5'";
+        $val4 = $this->db->query($sql4);
+		$fetch4= $val4->row();
+
+		 $sql5 = "SELECT * FROM cms WHERE id = '6'";
+        $val5 = $this->db->query($sql5);
+		$fetch5= $val5->row();
+
+
+      $adminmsg  = mysql_query("SELECT * FROM `ajax_chat_messages` WHERE `status` = 'unread' AND `type`= 'user'");
+      $total_rows = mysql_num_rows($adminmsg);
+
+      $translator_id = $this->session->userdata('translator_id');
+
+      $translator_name = '';
+
+      if ($translator_id) {
+          $translator = $this->db->from('translator')->where('id', $translator_id)->get();
+          if ($translator->num_rows()) {
+              $translator_name = $translator->row()->first_name . '!';
+          }
+      }
+	  ?>
+
+      <style type="text/css">
+          .drpdn .acddr{ display:none;}
+          .drpdn:hover .acddr{ display:block;}
+          .acddr{ position:absolute; z-index:9999; background-color:#fff; padding:10px 20px; width:200px; border:1px solid #CCC; border-radius:2px;}
+          .acddr li{ list-style:none; width: 100%; }
+          .acddr li a { color:#000; font-size:12px; text-decoration:none; padding: 0 !important; border-bottom: none !important; height: 40px !important; }
+          .acddr li a:hover{ color:#5bbc2e; }
+      </style>
+
+    <?php  if($this->session->userdata('is_translator')){ ?>
+    <ul id="navigation">
+        <li><a href="javascript:void(0)" class="menuclass">Welcome <?php echo $translator_name; ?></a></li>
+
+        <li class="drpdn">
+            <a href="javascript:void(0)" class="menuclass">My Account</a>
+            <ul class="acddr">
+                <li><a href="<?php echo base_url() ?>translator/dashboard">Dashboard</a></li>
+                <li><a href="<?php echo base_url() ?>translator/changeprofile">Edit Profile</a></li>
+                <li><a href="<?php echo base_url() ?>translator/changeprofilepicture"> Profile Picture</a></li>
+                <li><a href="<?php echo base_url() ?>translator/changepassword">Change Password </a></li>
+                <li><a href="<?php echo base_url() ?>translator/proposal">Proposals </a></li>
+                <li><a href="<?php echo base_url() ?>translator/invoice"> Invoice</a></li>
+                <li><a href="<?php echo base_url() ?>translator/paypal">Paypal Info</a></li>
+                <li><a href="<?php echo base_url() ?>translator/reviewlist">Feedback List</a></li>
+            </ul>
+        </li>
+
+        <li>
+            <a href="<?php echo base_url() ?>translator/chat"> Message <div id="noti" style="display: inline-block;"><?php echo $total_rows ?></div></a>
+        </li>
+        <li><a href="<?php echo base_url().'front/jobs';?>" class="menuclass" ><i class="ace-icon fa fa-share-square-o"></i>Jobs</a></li>
+         <li>
+              <a href="javascript: void(0)" id="ace-support-btn" class="myButton" style="top: 19px; display: inline"><i class="ace-icon fa fa-life-ring bigger-130" style="margin-right: 5px;"></i>Report Technical Issue</a>
+          </li>
+        <li><a href="<?php echo base_url() ?>translator/logout">Logout</a></li>
+    </ul>
+    <?php } else { ?>
+    <ul id="navigation">
+        <li><a href="<?php echo base_url()?>" class="menuclass current"><i class="ace-icon fa fa-home home-icon"></i>Home</a></li>
+        <li><a href="<?php echo base_url()?>page/<?php echo $fetch1->alias;?>" class="menuclass">About Us</a></li>
+        <li><a href="<?php echo base_url()?>page/<?php echo $fetch2->alias;?>" class="menuclass">Contact us</a></li>
+        <li><a href="<?php echo base_url()?>page/<?php echo $fetch5->alias;?>" class="menuclass">How It Works</a></li>
+    </ul>
+    <?php } ?>
+
+
+    <div class="reponsive-nav">
+        <ul id="menu1">
+            <li><a href="<?php echo base_url()?>" class="menuclass current"><i class="ace-icon fa fa-home home-icon"></i>Home</a></li>
+            <li><a href="<?php echo base_url()?>page/<?php echo $fetch1->alias;?>" class="menuclass">About Us</a></li>
+            <li><a href="<?php echo base_url()?>page/<?php echo $fetch2->alias;?>" class="menuclass">Contact us</a></li>
+            <li><a href="<?php echo base_url()?>page/<?php echo $fetch5->alias;?>" class="menuclass">How It Works</a></li>
+            <?php  if($this->session->userdata('is_translator')){ ?>
+            <li><a href="<?php echo base_url().'front/jobs';?>" class="menuclass" ><i class="ace-icon fa fa-share-square-o"></i>Jobs</a></li>
+            <?php } ?>
+        </ul>
+    </div>
+  </div>
+</div>
+<div style="background-color:#f4f4f4; border:2px solid gray; border-radius:1em;">
+<div id="dialog-support" title="Report Technical Issue" style="display:none;">
+ <form id="support-form">
+     <div class="row" style="padding: 5px">
+         <div class="col-md-3">Subject</div>
+         <div class="col-md-9"><input type="text" id="subject" name="subject" style="width: 100%;height: 32px" required></div>
+     </div>
+
+     <div class="row" style="padding: 5px">
+         <div class="col-md-3">Page</div>
+         <div class="col-md-9"><input type="text" name="page" style="width: 100%;height: 32px"></div>
+     </div>
+
+     <div class="row" style="padding: 5px">
+         <div class="col-md-3">URL</div>
+         <div class="col-md-9"><input type="text" name="url" style="width: 100%;height: 32px"></div>
+     </div>
+
+     <div class="row" style="padding: 5px">
+         <div class="col-md-12">Error Details</div>
+         <div class="col-md-12"><textarea id="error-details" name="details" style="width: 100%; height: 130px;" required></textarea></div>
+     </div>
+ </form>
+</div>
+
+<div id="dialog-support-message" title="Report Technical Issue" style="display:none;">
+ <div class="message-wrapper" style="padding: 10px; font-size: 15px;"></div>
+</div>
+</div>
+<style type="text/css" media="screen">
+    #dialog-rating .rate :not(p) {
+        text-align: center;
+    }
+
+    #dialog-rating .rate .poor label {
+        font-weight: bold;
+        font-size: 30px;
+        color: #ff0000;
+    }
+
+    #dialog-rating .rate .moderate label {
+        font-weight: bold;
+        font-size: 30px;
+        color: #ffcc00;
+    }
+
+    #dialog-rating .rate .excellent label {
+        font-weight: bold;
+        font-size: 30px;
+        color: #009933;
+    }
+
+    #dialog-rating .rate input {
+        margin-top: -5px;
+    }
+
+    #dialog-rating .questionaire label {
+        margin-left: 5px !important;
+        margin-right: 10px !important
+    }
+
+
+    #dialog-admin-rating .rate :not(p) {
+        text-align: center;
+    }
+
+    #dialog-admin-rating .rate .poor label {
+        font-weight: bold;
+        font-size: 30px;
+        color: #ff0000;
+    }
+
+    #dialog-admin-rating .rate .moderate label {
+        font-weight: bold;
+        font-size: 30px;
+        color: #ffcc00;
+    }
+
+    #dialog-admin-rating .rate .excellent label {
+        font-weight: bold;
+        font-size: 30px;
+        color: #009933;
+    }
+
+    #dialog-admin-rating .rate input {
+        margin-top: -5px;
+    }
+
+    #dialog-admin-rating .questionaire label {
+        margin-left: 5px !important;
+        margin-right: 10px !important
+    }
+</style>
+<script type="text/javascript">
+
+$(document).ready(function(){
+    $(document).on('click', ".toggle-admin-rating", function() {
+        $( "#dialog-admin-confirm").dialog({
+            resizable: false,
+            height: "auto",
+            width: 400,
+            modal: false,
+            closeOnEscape: false,
+            open: function(event, ui) {
+                $(".ui-dialog-titlebar-close").hide();
+            },
+            buttons: {
+                "Yes": function () {
+                    $(this).dialog('close');
+                    $('#dialog-admin-rating').dialog({
+                        resizable: false,
+                        height: "auto",
+                        width: 600,
+                        modal: false,
+                        buttons: {
+                            "Submit": function () {
+                                $.ajax({
+                                    url: "http://translatorexchange.com/development/" + "translator/admin_rating",
+                                    data: { job_id: 854, bidjob_id: 1392, trans_id: "176", rating: $('input[name="rate"]:checked').val() },
+                                    type: 'post',
+                                    dataType: 'json',
+                                    success: function (response) {
+                                        if (response == true) {
+                                            var job_id = '854';
+                                            var bid_id = '1392';
+                                            var trans_id = '176';
+                                            var type = 'admin';
+
+                                            var rating = $('input[name="rate"]:checked').val();
+                                            var q1 = $('input[name="q1"]:checked').val();
+                                            var q2 = $('input[name="q2"]:checked').val();
+                                            var q3 = $('input[name="q3"]:checked').val();
+                                            var q4 = $('input[name="q4"]:checked').val();
+
+                                            if (!q1) q1 = 'None';
+                                            if (!q2) q2 = 'None';
+                                            if (!q3) q3 = 'None';
+                                            if (!q4) q4 = 'None';
+
+                                            chat.send("Rating " + rating + "/10", name, job_id, bid_id, trans_id, type);
+                                            chat.send("Is all spelling and grammar now accurate? " + q1, name, job_id, bid_id, trans_id, type);
+                                            chat.send("Has literal translation been avoided? " + q2, name, job_id, bid_id, trans_id, type);
+                                            chat.send("Have numbers and money quantities been changed to match the target text style. " + q3, name, job_id, bid_id, trans_id, type);
+                                            chat.send("Has the terminology been consistent throughout the text? " + q4, name, job_id, bid_id, trans_id, type);
+                                            chat.send('Admin has verified completion', name, job_id, bid_id, trans_id, type);
+                                        // } else {
+                                            // $('#dialog-rating-warning').dialog();
+                                        }
+
+                                        $('#dialog-admin-rating').dialog('close');
+
+                                        var $interval = setInterval(function () {
+                                            var _url = window.location.href;
+                                            var _new_url = _url.split('&show=modal');
+                                            // _new_url = _new_url[0].substring(0, _new_url[0].length - 1);
+
+                                            window.location.href = _new_url[0];
+                                        }, 1000);
+                                    }
+                                });
+                            },
+                            "Cancel": function () {
+                                $(this).dialog('close');
+                            }
+                        }
+                    });
+                },
+                "No": function () {
+                    $(this).dialog('close');
+                },
+            }
+        });
+    });
+
+    $(document).on('click', ".doneWithJob", function() {
+        $( "#dialog-confirm").dialog({
+            resizable: false,
+            height: "auto",
+            width: 400,
+            modal: false,
+            closeOnEscape: false,
+            open: function(event, ui) {
+                $(".ui-dialog-titlebar-close").hide();
+            },
+            buttons: {
+                "Yes": function () {
+                    $(this).dialog('close');
+
+                    $.ajax({
+                        url: "http://translatorexchange.com/development/" + "translator/jobIsDone",
+                        data: { data: 854, bidjob_id: 1392 },
+                        type: 'post',
+                        dataType: 'json',
+                        success: function (response) {
+                            var job_id = '854';
+                            var bid_id = '1392';
+                            var trans_id = '176';
+                            var type = 'admin';
+
+                            chat.send("Freelancer has marked job completed", name, job_id, bid_id, trans_id, type);
+
+                            var $interval = setInterval(function () {
+                                location.reload();
+                            }, 1000);
+                        }
+                    });
+
+
+                },
+                "No": function () {
+                    $(this).dialog('close');
+                },
+            }
+        });
+    });
+
+    var _show = "";
+    var _type = "admin";
+
+    if (_show == 'modal' && _type == 'admin') {
+        $('.toggle-admin-rating').trigger('click');
+    }
+});
+</script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $(document).on('click', '#ace-support-btn', function (e) {
+            $('#dialog-support').dialog({
+                resizable: false,
+                height: "auto",
+                width: 600,
+                modal: false,
+                closeOnEscape: false,
+                open: function(event, ui) {
+                    $(".ui-dialog-titlebar-close").hide();
+                },
+                buttons: {
+                    'Report': function () {
+
+                        if ($('#subject').val() == '' && $('#error-details').val() == '') {
+                            $('#dialog-support-message').dialog({
+                                resizable: false,
+                                height: "auto",
+                                width: 600,
+                                modal: false,
+                                closeOnEscape: false,
+                                open: function(event, ui) {
+                                    $(".ui-dialog-titlebar-close").hide();
+                                },
+                                buttons: {
+                                    'Okay': function () {
+                                        $(this).dialog('close');
+                                    }
+                                }
+                            });
+
+                            $('.message-wrapper').html('Subject and error details should have a value');
+                        } else {
+                            $(this).dialog('close');
+
+                            $.ajax({
+                                url: "http://translatorexchange.com/development/support/save",
+                                type: 'post',
+                                data: $('#support-form').serialize(),
+                                dataType: 'json',
+                                success: function (response) {
+                                    if (response.success) {
+                                        $('#dialog-support-message').dialog({
+                                            resizable: false,
+                                            height: "auto",
+                                            width: 600,
+                                            modal: false,
+                                            closeOnEscape: false,
+                                            open: function(event, ui) {
+                                                $(".ui-dialog-titlebar-close").hide();
+                                            },
+                                            buttons: {
+                                                'Okay': function () {
+                                                    $(this).dialog('close');
+                                                }
+                                            }
+                                        });
+
+                                        $('.message-wrapper').html(response.message);
+                                    }
+                                }
+
+                            });
+                        }
+
+                    },
+                    'Close': function () {
+                        $(this).dialog('close');
+                    }
+                }
+            });
+        });
+    });
+    
+</script>
+</div>
+<!-- /Header -->

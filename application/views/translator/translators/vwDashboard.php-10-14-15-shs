@@ -1,0 +1,85 @@
+<?php
+$this->load->view('vwHeader');
+$user_name=$this->session->userdata('user_name');
+$sql=" SELECT * FROM `translator` where `user_name`='$user_name'";
+$val=$this->db->query($sql);
+$fetch=$val->row();
+$name=$fetch->first_name.'&nbsp;'.$fetch->last_name;
+$email=$fetch->email_address;
+$address=$fetch->location;
+$overview=$fetch->desc;
+$image=$fetch->images;
+$language=$fetch->language;
+$languages=explode(",",$language);
+$sql=" SELECT * FROM `languages`";
+$val=$this->db->query($sql);
+$lang=$val->result();
+
+?>
+ <div id="title">
+    <h1 class="inner">Dashboard<span id="jobs-counter"></span>
+      <ul class="breadcrumb-inner">
+         <li> <a href="<?php echo base_url()?>"><i class="ace-icon fa fa-home home-icon"></i>Home</a></li>
+        <li> <a href="#">Dashboard</a></li>
+      </ul>
+    </h1>
+  </div>
+  <div class="inner"> 
+    
+     <div class="content-inner"> 
+      
+    <div class="content-center">
+            <div class=" field-container odd box-1 hide">  
+
+    <div class="pimage_name">
+    <div class="span2">
+    <?php if($image!="" && file_exists("./uploads/translator/profile/".$image)) { ?>
+
+    <div class="dashboard_img">
+            <img alt="" src="<?php echo base_url(); ?>uploads/translator/profile/<?php echo $image; ?>" height="102px;width=102px;">
+            </div> <?php } ?>            
+          </div>
+    <div class="span6">
+    <div class="profile_holder"><?php echo $name; ?><p>Email:<?php echo $email; ?></p><p class="">Address:<?php echo $address; ?>    </p><p>Language:
+	<?php foreach ($lang as $lang1) 
+    { if(in_array($lang1->id, $languages))
+	{ ?>
+    <td><?php echo $lang1->name; ?></td>
+    <?php 
+	} 
+	} ?>
+    </p><p class=""><a href="<?php echo base_url()?>translator/changeprofile" class="btn btn-info" >
+    <i class="icon-edit"></i> 
+    Edit
+    </a>   </p></div>
+    </div> 
+    </div>
+   <div class="clear"></div> 
+    <div>
+   <!-- <a href="<?php echo base_url()?>translator/changeprofile" class="btn btn-info" >
+    <i class="icon-edit"></i> 
+    Edit
+    </a> -->
+    </div>
+   <div class="clear"></div> 
+               <div class="block background">
+
+    <div class="profile_overview">Overview<p><?php echo $overview; ?></p></div>  </div>      
+</div>
+</div>
+
+<div class="content-right">
+      
+        <?php
+				$this->load->view('translator/includes/vwSidebar-left');
+			?>
+        </div>
+</div>
+</div>
+<div class="clear"></div>
+<?php
+$this->load->view('vwFooter');
+?>
+<?php
+$this->load->view('vwFooterLower');
+?>

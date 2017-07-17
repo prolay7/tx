@@ -1,0 +1,810 @@
+<?php
+
+error_reporting(0);
+
+Class Admin_Invoice extends CI_Controller
+{
+
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->load->helper(array('form', 'url', 'path'));
+        $this->load->model(array('invoice_model', 'common_model'));
+    }
+
+    public function index($start = 0)
+    {
+        $ordet_by = $this->session->userdata('order_by_invoice');
+        $payment_status  = $this->session->userdata('payment_status');
+        $admin_id = $this->session->userdata('admin_id');
+        if($admin_id){
+            $this->load->model('common_model');
+            $data['admin_type'] = $this->common_model->get_contents('admin_type','admin','id',$admin_id,'id','DESC')[0]->admin_type;
+        }else{
+            $data['admin_type'] = '';
+        }
+        if(isset($payment_status) == false){
+            $payment_status = null;
+        }
+//        print($ordet_by);exit();
+        if(isset($ordet_by) == false || $ordet_by== ''){
+            $ordet_by = 'invoice.id ASC';
+        }
+
+//        print_r($this->input->post());exit();
+        if ($_POST) {
+            $dateFrom = $this->input->post('invoiceDateFrom');
+            $dateTo = $this->input->post('invoiceDateTo');
+            $search_string = $this->input->post('search_string');
+            $payment_status = $this->input->post('payment_status');
+            $this->session->set_userdata('dateFrom', $this->input->post('invoiceDateFrom'));
+            $this->session->set_userdata('dateTo', $this->input->post('invoiceDateTo'));
+            $this->session->set_userdata('search_string', $this->input->post('search_string'));
+            if($payment_status != '') {
+                $this->session->set_userdata('payment_status', $this->input->post('payment_status'));
+            }else{
+                $this->session->unset_userdata('payment_status');
+                $payment_status = false;
+            }
+
+        }
+
+        $data['invoices'] = $this->invoice_model->fetchAllInvoices(10, $start, $this->session->userdata('search_string'), $payment_status, $this->session->userdata('dateFrom'), $this->session->userdata('dateTo'),$ordet_by);
+        //echo '<pre>'; print_r($data['invoices']); echo '</pre>';
+
+        $config['total_rows'] = count($this->invoice_model->getTotalNumberOfInvoices($this->session->userdata('search_string'), $payment_status, $this->session->userdata('dateFrom'), $this->session->userdata('dateTo')));
+
+        $config['base_url'] = base_url() . 'admin/invoice/';
+
+        $config['per_page'] = 10;
+        $config['uri_segment'] = 3;
+
+        $this->pagination->initialize($config);
+        $data['pages'] = $this->pagination->create_links();
+        $this->db->select('SUM(bidjob.price) AS total')->from('invoice');
+        $this->db->join('bidjob', 'bidjob.id = invoice.bid_id');
+        $this->db->where('awarded', 1);
+        $this->db->where('payment', 0);
+        $getTotalPayable = $this->db->get();
+        if ($getTotalPayable->num_rows() > 0) {
+            $totalPayable = $getTotalPayable->first_row()->total;
+        } else {
+            $totalPayable = 0;
+        }
+        $data['payable'] = $totalPayable;
+if(gettype($payment_status) == 'boolean'){
+    $data['payment_status_selected'] = '';
+}else {
+    $data['payment_status_selected'] = $payment_status;
+}
+        $data['translator'] = $this->common_model->get_contents('*', 'translator', 'verified', '1', 'id', 'asc');
+        $data['line_number'] = $this->common_model->get_all('jobpost', '*', 'id', 'asc');
+        $data['list_languages'] = $this->common_model->get_all('languages', '*', 'id', 'asc');
+        //echo '<pre>';print_r($data['line_number']);echo '<pre>';
+        $this->load->view('admin/jobpost/vwAdminInvoice', $data);
+
+    }
+
+
+    public function sort(){
+        if($this->input->server('REQUEST_METHOD') == 'POST' && $this->input->is_ajax_request() == true){
+            $this->session->set_userdata('order_by_invoice', $this->input->post('sort_type'));
+            echo "success";
+
+        }
+    }
+
+    public function edit()
+    {
+        if ($this->input->server('REQUEST_METHOD') == 'POST') {
+            if ($this->input->is_ajax_request() == true) {
+                $data_msg = [];
+                $id = $this->input->post('id');
+                $data_msg['res'] == 0;
+//                $this->db->select('jobpost.*,jobpost.price  job_price,translator.*,bidjob.*,bidjob.price  owned_price,ratings.*,invoice.*,invoice.created  handed_date,jobpost.language job_lang,jobpost.lineMonth job_linemonth,jobpost.lineYear job_lineyear');
+//                $this->db->from('invoice');
+//                $this->db->where('invoice.id', $id);
+//                $this->db->group_by('invoice.id');
+//                $this->db->join('jobpost', 'jobpost.id = invoice.job_id', 'left');
+//                $this->db->join('translator', 'translator.id = invoice.trans_id', 'left');
+//                $this->db->join('bidjob', 'bidjob.id = invoice.bid_id', 'left');
+//                $this->db->join('ratings', 'jobpost.id = ratings.job_id AND bidjob.id = ratings.bidjob_id AND translator.id = ratings.translator_id', 'left');
+//                $this->db->join('ajax_chat_messages', 'ajax_chat_messages.bid_id = invoice.bid_id AND ajax_chat_messages.job_id = invoice.job_id AND ajax_chat_messages.trans_id = invoice.trans_id', 'left');
+                $data_msg['invoice'] = $this->db->get_where('invoice', ['invoice_id' => $id]);
+                if ($data_msg['invoice']->num_rows() > 0) {
+                    $data['translator'] = $this->common_model->get_contents('*', 'translator', 'verified', '1', 'id', 'asc');
+                    $data['list_languages'] = $this->common_model->get_all('languages', '*', 'id', 'asc');
+                    $data['data'] = $data_msg['invoice']->result()[0];
+                    $data_msg['handed_date'] = date('Y-m-d h:i:s', strtotime($data->created));
+                    $data['jobpost'] = $this->db->get_where('jobpost', ['id' => $data['data']->job_id]);
+                    if ($data['jobpost']->num_rows() > 0) {
+                        $data['jobpost'] = $data['jobpost']->result()[0];
+                    } else {
+                        $data['jobpost'] = false;
+                    }
+                    $data['bidjob'] = $this->db->get_where('bidjob', ['id' => $data['data']->bid_id]);
+                    if ($data['bidjob']->num_rows() > 0) {
+                        $data['bidjob'] = $data['bidjob']->result()[0];
+                        $data_msg['award_date'] = date('Y-m-d h:i:s', strtotime($data['bidjob']->award_date));
+                    } else {
+                        $data['bidjob'] = false;
+                    }
+                    $data['translator_job'] = $this->db->get_where('translator', ['id' => $data['data']->trans_id]);
+                    if ($data['translator_job']->num_rows() > 0) {
+                        $data['translator_job'] = $data['translator_job']->result()[0];
+                    } else {
+                        $data['translator_job'] = false;
+                    }
+
+                    $data['rating'] = $this->db->get_where('ratings', ['job_id' => $data['data']->job_id, 'bidjob_id' => $data['data']->bid_id, 'translator_id' => $data['data']->trans_id])->result()[0];
+
+                    $data['id'] = $id;
+                    $data_msg['invoice'] = $this->load->view('ajax_modals/edit_invoice', $data, true);
+                    $data_msg['res'] = 1;
+                } else {
+                    $data_msg['invoice'] = null;
+                }
+                echo json_encode($data_msg);
+                exit();
+            } else {
+                $invoice_id = $this->uri->segment('4');
+                $invoice_det = $this->db->where(['invoice_id' => $invoice_id])->get('invoice')->result()[0];
+                $line_month = $this->input->post('lineMonth', TRUE) ? $this->input->post('lineMonth', TRUE) : $this->input->post('_lineMonth', TRUE);
+                $line_year = $this->input->post('lineYear', TRUE) ? $this->input->post('lineYear', TRUE) : $this->input->post('_lineYear', TRUE);
+                $line_number = $this->input->post('lineNumber', TRUE) ? $this->input->post('lineNumber', TRUE) : $this->input->post('_lineNumber', TRUE);
+                $line_number_code = 'M' . $line_month . $line_year . 'L' . $line_number;
+                //date format exolode date
+                $date_explode = explode("/", $this->input->post('datetimepicker1', true));
+                $date_year_explode = explode(" ", $date_explode[2]);
+                $date_completed_new = $date_year_explode[0] . '-' . $date_explode[0] . '-' . $date_explode[1];
+                $date_completed8 = date('Y-m-d h:i:s', strtotime($this->input->post('datetimepicker1')));
+                //date awarded date
+                $date_explode_award = explode("/", $this->input->post('awarded_date', true));
+                $date_year_explode_award = explode(" ", $date_explode_award[2]);
+                $date_awarded = $date_year_explode_award[0] . '-' . $date_explode_award[0] . '-' . $date_explode_award[1];
+
+                //check if line number exist in jobpost table
+                $line_number_query = $this->db->query("select * from jobpost where lineNumberCode = '" . $line_number_code . "'");
+                $this->db->trans_start(true);
+                if ($line_number_query->num_rows() > 0) {
+
+                    $job_id = $line_number_query->result()[0]->id;
+                    $data_job = array(
+                        'price' => $this->input->post('price'),
+                    );
+                    $this->db->update('jobpost', $data_job, ['id' => $job_id]);
+                } else {
+                    $data_job = array(
+                        'price' => $this->input->post('price'),
+                        'created' => date('Y-m-d H:i:s'),
+                        'lineNumberCode' => $line_number_code,
+                        'language' => $this->input->post('from_language') . "/" . $this->input->post('to_language'),
+                        'lineNumber' => $line_number,
+                        'lineMonth' => $line_month,
+                        'lineYear' => $line_year
+                    );
+                    $this->db->insert('jobpost', $data_job);
+
+                    $job_id = $this->db->insert_id();
+                }
+                $data_bitjob = array(
+                    'trans_id' => $this->input->post('trans_id'),
+                    'job_id' => $job_id,
+                    'awarded' => '1',
+                    'is_done' => '1',
+                    'stage' => '3',
+                    'price' => $this->input->post('amount_owed', TRUE),
+                    'complete_date' => $date_completed_new,
+                    'award_date' => $date_awarded,
+                    'is_rated' => '1'
+                );
+
+                $this->db->where(['id' => $invoice_det->bid_id])->update('bidjob', $data_bitjob);
+
+                $ratings = array(
+                    'translator_id' => $this->input->post('trans_id'),
+                    'job_id' => $job_id,
+                    'rating' => $this->input->post('rate'),
+                    'date_rated' => date('Y-m-d H:i:s')
+                );
+                $this->db->where(['id' => $this->input->post('rating_id')])->update('ratings', $ratings);
+                $bid_id = $invoice_det->bid_id;
+                $data_invoice = array(
+                    'trans_id' => $this->input->post('trans_id'),
+                    'job_id' => $job_id,
+                    'created' => $date_completed8
+                );
+
+                $this->db->where(['invoice_id' => $invoice_id])->update('invoice', $data_invoice);
+
+                $q1 = $this->input->post('q1', true);
+                $q2 = $this->input->post('q2', true);
+                $q3 = $this->input->post('q3', true);
+                $q4 = $this->input->post('q4', true);
+                if (empty($q1) == false || empty($q2) == false || empty($q3) == false || empty($q4) == false) {
+                    $post_to_chat_box_admin = array(
+                        'bid_id' => $bid_id,
+                        'job_id' => $job_id,
+                        'trans_id' => $this->input->post('trans_id'),
+                        'type' => 'admin',
+                        'status' => 'unread',
+                        'jobname' => 'None',
+                        'userID' => 1,
+                        'userName' => 'Guest',
+                        'channel' => 1,
+                        'dateTime' => date('Y-m-d H:i:s'),
+                        'text' => 'We are sorry for wrong informations! You can find updated messages bellow',
+                        'ip' => '127.0.0.1'
+                    );
+                    $this->db->insert('ajax_chat_messages', $post_to_chat_box_admin);
+
+                    $post_to_chat_box_verify = array(
+                        'bid_id' => $bid_id,
+                        'job_id' => $job_id,
+                        'trans_id' => $this->input->post('trans_id'),
+                        'type' => 'admin',
+                        'status' => 'unread',
+                        'jobname' => 'None',
+                        'userID' => 1,
+                        'userName' => 'Guest',
+                        'channel' => 1,
+                        'dateTime' => date('Y-m-d H:i:s'),
+                        'text' => 'Admin has verified completion',
+                        'ip' => '127.0.0.1'
+                    );
+                    $this->db->insert('ajax_chat_messages', $post_to_chat_box_verify);
+
+                    $r = 'Rating ' . $this->input->post('rate') . '/10';
+                    $post_to_chat_box_rating = array(
+                        'bid_id' => $bid_id,
+                        'job_id' => $job_id,
+                        'trans_id' => $this->input->post('trans_id'),
+                        'type' => 'admin',
+                        'status' => 'unread',
+                        'jobname' => 'None',
+                        'userID' => 1,
+                        'userName' => 'Guest',
+                        'channel' => 1,
+                        'dateTime' => date('Y-m-d H:i:s'),
+                        'text' => $r,
+                        'ip' => '127.0.0.1'
+                    );
+                    $this->db->insert('ajax_chat_messages', $post_to_chat_box_rating);
+                }
+                if (empty($q1) == false) {
+                    $post_to_chat_box_q1 = array(
+                        'bid_id' => $bid_id,
+                        'job_id' => $job_id,
+                        'trans_id' => $this->input->post('trans_id'),
+                        'type' => 'admin',
+                        'status' => 'unread',
+                        'jobname' => 'None',
+                        'userID' => 1,
+                        'userName' => 'Guest',
+                        'channel' => 1,
+                        'dateTime' => date('Y-m-d H:i:s'),
+                        'text' => $this->input->post('q1', TRUE),
+                        'ip' => '127.0.0.1'
+                    );
+                    $this->db->insert('ajax_chat_messages', $post_to_chat_box_q1);
+                }
+                if (empty($q2) == false) {
+                    $post_to_chat_box_q2 = array(
+                        'bid_id' => $bid_id,
+                        'job_id' => $job_id,
+                        'trans_id' => $this->input->post('trans_id'),
+                        'type' => 'admin',
+                        'status' => 'unread',
+                        'jobname' => 'None',
+                        'userID' => 1,
+                        'userName' => 'Guest',
+                        'channel' => 1,
+                        'dateTime' => date('Y-m-d H:i:s'),
+                        'text' => $this->input->post('q2', TRUE),
+                        'ip' => '127.0.0.1'
+                    );
+                    $this->db->insert('ajax_chat_messages', $post_to_chat_box_q2);
+                }
+                if (empty($q3) == false) {
+                    $post_to_chat_box_q3 = array(
+                        'bid_id' => $bid_id,
+                        'job_id' => $job_id,
+                        'trans_id' => $this->input->post('trans_id'),
+                        'type' => 'admin',
+                        'status' => 'unread',
+                        'jobname' => 'None',
+                        'userID' => 1,
+                        'userName' => 'Guest',
+                        'channel' => 1,
+                        'dateTime' => date('Y-m-d H:i:s'),
+                        'text' => $this->input->post('q3', TRUE),
+                        'ip' => '127.0.0.1'
+                    );
+                    $this->db->insert('ajax_chat_messages', $post_to_chat_box_q3);
+                }
+                if (empty($q4) == false) {
+                    $post_to_chat_box_q4 = array(
+                        'bid_id' => $bid_id,
+                        'job_id' => $job_id,
+                        'trans_id' => $this->input->post('trans_id'),
+                        'type' => 'admin',
+                        'status' => 'unread',
+                        'jobname' => 'None',
+                        'userID' => 1,
+                        'userName' => 'Guest',
+                        'channel' => 1,
+                        'dateTime' => date('Y-m-d H:i:s'),
+                        'text' => $this->input->post('q4', TRUE),
+                        'ip' => '127.0.0.1'
+                    );
+                    $this->db->insert('ajax_chat_messages', $post_to_chat_box_q4);
+                }
+
+                $this->db->trans_complete();
+                if ($this->db->trans_status() != false) {
+                    $this->db->trans_commit();
+                    $this->session->set_flashdata('success_message', 'Data updated successfully');
+                } else {
+                    $this->db->trans_rollback();
+                    $this->session->set_flashdata('error_message', 'Data could not be updated');
+                }
+
+            }
+            redirect(base_url() . 'admin/invoice');
+            exit();
+        }
+    }
+
+    public function reload_invoices()
+    {
+        $order = $this->input->get('order_by');
+        $order_type = $this->input->get('order_type');
+
+        $data['invoices'] = $this->invoice_model->fetchAllInvoices(10, 0, $this->session->userdata('search_string'), $this->session->userdata('payment_status'), $this->session->userdata('dateFrom'), $this->session->userdata('dateTo'), $order, $order_type);
+        $html = $this->load->view('admin/jobpost/vwAdminInvoiceRows', $data);
+        echo $html;
+    }
+
+    function clearFilters()
+    {
+
+        $this->session->unset_userdata('dateFrom');
+        $this->session->unset_userdata('dateTo');
+        $this->session->unset_userdata('search_string');
+        $this->session->unset_userdata('payment_status');
+        $this->session->unset_userdata('order_by_invoice');
+
+    }
+
+    public function viewawardjob()
+    {
+
+        $id = $this->uri->segment(3);
+        $sql = "select * from `bidjob` where `id`='$id'";
+        $query = $this->db->query($sql);
+        $data['fetch'] = $query->row();
+        $this->load->view('admin/jobpost/vwAwardJobDetails', $data);
+
+    }
+
+    public function awardcomplete()
+    {
+
+        if ($this->session->userdata('is_admin')) {
+
+            $data['message_error'] = "";
+            $data['message_success'] = "";
+
+            //artist id
+            $id = $this->uri->segment(3);
+            $job_id = $this->uri->segment(4);
+
+            if ($id != '') {
+
+                $date = date('Y-m-d h-i-s');
+                $sql = "UPDATE `bidjob` SET  `awarded`='1' ,`stage` = '2',`complete_date`='$date' WHERE `id` = '" . $id . "'";
+                $val = $this->db->query($sql);
+
+                if ($val) {
+
+                    $transql = "select `trans_id` from `bidjob` where `id`='$id'";
+                    $tranval = $this->db->query($transql);
+                    $tranfetch = $tranval->row();
+                    $trans_id = $tranfetch->trans_id;
+
+                    $jobsql = "select * from `jobpost` where `id`='$job_id'";
+                    $jobval = $this->db->query($jobsql);
+                    $jobfetch = $jobval->row();
+                    $job_name = $jobfetch->name;
+                    $job_description = $jobfetch->description;
+                    $job_created = $jobfetch->created;
+                    $job_alias = $jobfetch->alias;
+
+                    $emailsql = "select * from `translator` where `id`='$trans_id'";
+                    $emailval = $this->db->query($emailsql);
+                    $emailfetch = $emailval->row();
+                    $trans_email = $emailfetch->email_address;
+                    $trans_name = $emailfetch->first_name . '&nbsp;' . $emailfetch->last_name;
+
+                    //echo $trans_name;die;
+
+                    $data['name'] = $trans_name;
+                    $data['job_name'] = $job_name;
+                    $data['job_description'] = $job_description;
+                    $data['job_created'] = $job_created;
+                    $data['job_alias'] = $job_alias;
+
+                    $mailTo = $trans_email;
+                    $mailName = $trans_name;
+                    $this->email->set_mailtype("html");
+                    $this->email->from('info@montesinotranslation.com');
+                    $this->email->to($mailTo);
+                    $this->email->subject('Award Job Completion');
+                    $html_email = $this->load->view('email/vwTranslatorAwardCompletion', $data, true);
+                    $this->email->message($html_email);
+                    $this->email->send();
+
+                    $this->session->set_flashdata('success_message', ' Awarded job Completed');
+                    redirect('admin/awardjob/');
+
+                }
+            } else {
+                $this->session->set_flashdata('error_message', 'Sorry, some problem occured. Please try again');
+                redirect('admin/awardjob/');
+            }
+
+        } else {
+            redirect('admin/index');
+        }
+
+    }
+
+    public function awarduncomplete()
+    {
+
+        if ($this->session->userdata('is_admin')) {
+
+            $data['message_error'] = "";
+            $data['message_success'] = "";
+
+            //artist id
+            $id = $this->uri->segment(3);
+            $job_id = $this->uri->segment(4);
+
+            if ($id != '') {
+                $sql = "UPDATE `bidjob` SET `awarded` = '1',`stage` = '1' WHERE `id` = '" . $id . "'";
+                $val = $this->db->query($sql);
+                $this->session->set_flashdata('success_message', 'Awarded Job Not Compleated');
+                redirect('admin/awardjob/');
+            } else {
+                $this->session->set_flashdata('error_message', 'Sorry, some problem occured. Please try again');
+                redirect('admin/awardjob/');
+            }
+        } else {
+            redirect('admin/index');
+        }
+
+    }
+
+    function manual_payment()
+    {
+
+        if ($_POST) {
+
+            $invoiceData = array(
+                'payment' => 1,
+                'payment_date' => date('Y-m-d H:i:s')
+            );
+
+            $results = $this->invoice_model->updateInvoicePayment($invoiceData, $_POST['invoiceID']);
+        }
+
+        redirect(base_url() . 'admin/invoice/');
+
+    }
+
+    function mark_unpaid()
+    {
+
+        if ($_POST) {
+
+            $invoiceData = array(
+                'payment' => 0,
+                'payment_date' => "0000-00-00 00:00:00"
+            );
+
+            $results = $this->invoice_model->updateInvoicePayment($invoiceData, $_POST['invoiceID']);
+        }
+
+        redirect(base_url() . 'admin/invoice/');
+    }
+
+    public function delete()
+    {
+        $check_admin = $this->session->userdata('is_admin');
+        if ($check_admin == 1 && $this->input->server("REQUEST_METHOD") == "POST") {
+            $id = $this->uri->segment(3);
+            $message = $this->input->post('message');
+
+
+            $invoice_det = $this->db->select("invoice.trans_id AS trans_id,jobpost.name AS jobname, jobpost.lineNumberCode AS lineNumberCode")->join('jobpost', 'invoice.job_id = jobpost.id', 'left')->where('invoice_id', $id)->get('invoice')->first_row();
+            $job_name = ($invoice_det->jobname != '') ? $invoice_det->jonname : 'Job Manually Entered/' . $invoice_det->lineNumberCode;
+            $message_str = "{$job_name} invoice deleted:<br/>Reason: {$message}<br/>Please contact admin for any questions.";
+
+            $message_info = array(
+                'translatorID' => $invoice_det->trans_id,
+                'message' => $message_str,
+                'created' => date("Y-m-d H:i:s")
+            );
+
+            $this->db->insert('notifications', $message_info);
+
+            $this->invoice_model->delete_invoice($id);
+            $this->session->set_flashdata('success_message', 'Successfully Deleted');
+            redirect('admin/invoice');
+        } else {
+            $this->session->set_flashdata('error_message', ' Not Deleted');
+            redirect('admin/index');
+        }
+
+    }
+
+    function manually_add_invoice()
+    {
+        echo $this->input->post('rating');
+        exit();
+        $data['translator'] = $this->common_model->get_contents('*', 'translator', 'verified', '1', 'id', 'asc');
+        $this->load->view('admin/add_invoice', $data);
+    }
+
+    function add_action_invoice()
+    {
+        $admin_id = $this->session->userdata('admin_id');
+//        print_r($this->input->post());exit();
+        $line_month = $this->input->post('lineMonth', TRUE) ? $this->input->post('lineMonth', TRUE) : $this->input->post('_lineMonth', TRUE);
+        $line_year = $this->input->post('lineYear', TRUE) ? $this->input->post('lineYear', TRUE) : $this->input->post('_lineYear', TRUE);
+        $line_number = $this->input->post('lineNumber', TRUE) ? $this->input->post('lineNumber', TRUE) : $this->input->post('_lineNumber', TRUE);
+        $line_number_code = 'M' . $line_month . $line_year . 'L' . $line_number;
+        //date format exolode date
+        $date_explode = explode("/", $this->input->post('datetimepicker1', true));
+        $date_year_explode = explode(" ", $date_explode[2]);
+        $date_completed_new = $date_year_explode[0] . '-' . $date_explode[0] . '-' . $date_explode[1];
+
+        $date_completed = date('Y-m-d H:i:s', strtotime($date_completed_new . ' +31 day'));
+
+        //date awarded date
+        $date_explode_award = explode("/", $this->input->post('awarded_date', true));
+        $date_year_explode_award = explode(" ", $date_explode_award[2]);
+        $date_awarded = $date_year_explode_award[0] . '-' . $date_explode_award[0] . '-' . $date_explode_award[1];
+
+        //check if line number exist in jobpost table
+        $line_number_query = $this->db->query("select * from jobpost where lineNumberCode = '" . $line_number_code . "'");
+
+        if ($line_number_query->num_rows() != '0') {
+            $job_id = $line_number_query->row_array();
+
+            $data_bitjob = array(
+                'trans_id' => $this->input->post('trans_id'),
+                'job_id' => $job_id['id'],
+                'awarded' => '1',
+                'is_done' => '1',
+                'stage' => '3',
+                'price' => $this->input->post('amount_owed', TRUE),
+                'complete_date' => $date_completed_new,
+                'award_date' => $date_awarded,
+                'is_rated' => '1',
+                'awarded_admin_id' => $admin_id,
+                'completed_admin_id' => $admin_id
+            );
+
+            $this->db->insert('bidjob', $data_bitjob);
+
+            $last_id = $this->db->insert_id();
+
+
+            $ratings = array(
+                'translator_id' => $this->input->post('trans_id'),
+                'job_id' => $job_id['id'],
+                'bidjob_id' => $last_id,
+                'rating' => $this->input->post('rate'),
+                'date_rated' => date('Y-m-d H:i:s')
+            );
+            $this->db->insert('ratings', $ratings);
+
+            $data_invoice = array(
+                'bid_id' => $last_id,
+                'trans_id' => $this->input->post('trans_id'),
+                'job_id' => $job_id['id'], 'invoice_id' => time());
+            $this->db->insert('invoice', $data_invoice);
+
+
+        } else {
+            //create job
+            $data_job = array(
+                'price' => $this->input->post('price'),
+                'created' => date('Y-m-d H:i:s'),
+                'lineNumberCode' => $line_number_code,
+                'language' => $this->input->post('from_language') . "/" . $this->input->post('to_language'),
+                'lineNumber' => $line_number,
+                'lineMonth' => $line_month,
+                'lineYear' => $line_year
+            );
+            $this->db->insert('jobpost', $data_job);
+
+            $job_id = $this->db->insert_id();
+
+            //insert bidjob
+            $data_bitjob = array(
+                'trans_id' => $this->input->post('trans_id', TRUE),
+                'job_id' => $job_id,
+                'awarded' => '1',
+                'is_done' => '1',
+                'stage' => '3',
+                'price' => $this->input->post('amount_owed', TRUE),
+                'complete_date' => $date_completed_new,
+                'award_date' => $date_awarded,
+                'is_rated' => '1',
+                'completed_admin_id' => $admin_id,
+                'awarded_admin_id' => $admin_id
+            );
+
+            $this->db->insert('bidjob', $data_bitjob);
+
+            $last_id = $this->db->insert_id();
+
+            //insert rating
+            $ratings = array(
+                'translator_id' => $this->input->post('trans_id'),
+                'job_id' => $job_id,
+                'bidjob_id' => $last_id,
+                'rating' => $this->input->post('rate'),
+                'date_rated' => date('Y-m-d H:i:s')
+            );
+            $this->db->insert('ratings', $ratings);
+
+            //insert invoice
+            $data_invoice = array(
+                'bid_id' => $last_id,
+                'trans_id' => $this->input->post('trans_id'),
+                'job_id' => $job_id,
+                'invoice_id' => time()
+            );
+            $this->db->insert('invoice', $data_invoice);
+
+            //insert into chat box
+            $post_to_chat_box_admin = array(
+                'bid_id' => $last_id,
+                'job_id' => $job_id,
+                'trans_id' => $this->input->post('trans_id'),
+                'type' => 'admin',
+                'status' => 'unread',
+                'jobname' => 'None',
+                'userID' => 1,
+                'userName' => 'Guest',
+                'channel' => 1,
+                'dateTime' => date('Y-m-d H:i:s'),
+                'text' => 'You have been awarded this job, please coordinate with the admin to proceed',
+                'ip' => '127.0.0.1'
+            );
+            $this->db->insert('ajax_chat_messages', $post_to_chat_box_admin);
+
+            $post_to_chat_box_verify = array(
+                'bid_id' => $last_id,
+                'job_id' => $job_id,
+                'trans_id' => $this->input->post('trans_id'),
+                'type' => 'admin',
+                'status' => 'unread',
+                'jobname' => 'None',
+                'userID' => 1,
+                'userName' => 'Guest',
+                'channel' => 1,
+                'dateTime' => date('Y-m-d H:i:s'),
+                'text' => 'Admin has verified completion',
+                'ip' => '127.0.0.1'
+            );
+            $this->db->insert('ajax_chat_messages', $post_to_chat_box_verify);
+
+            $r = 'Rating ' . $this->input->post('rate') . '/10';
+            $post_to_chat_box_rating = array(
+                'bid_id' => $last_id,
+                'job_id' => $job_id,
+                'trans_id' => $this->input->post('trans_id'),
+                'type' => 'admin',
+                'status' => 'unread',
+                'jobname' => 'None',
+                'userID' => 1,
+                'userName' => 'Guest',
+                'channel' => 1,
+                'dateTime' => date('Y-m-d H:i:s'),
+                'text' => $r,
+                'ip' => '127.0.0.1'
+            );
+            $this->db->insert('ajax_chat_messages', $post_to_chat_box_rating);
+
+            $post_to_chat_box_q1 = array(
+                'bid_id' => $last_id,
+                'job_id' => $job_id,
+                'trans_id' => $this->input->post('trans_id'),
+                'type' => 'admin',
+                'status' => 'unread',
+                'jobname' => 'None',
+                'userID' => 1,
+                'userName' => 'Guest',
+                'channel' => 1,
+                'dateTime' => date('Y-m-d H:i:s'),
+                'text' => $this->input->post('q1', TRUE),
+                'ip' => '127.0.0.1'
+            );
+            $this->db->insert('ajax_chat_messages', $post_to_chat_box_q1);
+
+            $post_to_chat_box_q2 = array(
+                'bid_id' => $last_id,
+                'job_id' => $job_id,
+                'trans_id' => $this->input->post('trans_id'),
+                'type' => 'admin',
+                'status' => 'unread',
+                'jobname' => 'None',
+                'userID' => 1,
+                'userName' => 'Guest',
+                'channel' => 1,
+                'dateTime' => date('Y-m-d H:i:s'),
+                'text' => $this->input->post('q2', TRUE),
+                'ip' => '127.0.0.1'
+            );
+            $this->db->insert('ajax_chat_messages', $post_to_chat_box_q2);
+            $post_to_chat_box_q3 = array(
+                'bid_id' => $last_id,
+                'job_id' => $job_id,
+                'trans_id' => $this->input->post('trans_id'),
+                'type' => 'admin',
+                'status' => 'unread',
+                'jobname' => 'None',
+                'userID' => 1,
+                'userName' => 'Guest',
+                'channel' => 1,
+                'dateTime' => date('Y-m-d H:i:s'),
+                'text' => $this->input->post('q3', TRUE),
+                'ip' => '127.0.0.1'
+            );
+            $this->db->insert('ajax_chat_messages', $post_to_chat_box_q3);
+            $post_to_chat_box_q4 = array(
+                'bid_id' => $last_id,
+                'job_id' => $job_id,
+                'trans_id' => $this->input->post('trans_id'),
+                'type' => 'admin',
+                'status' => 'unread',
+                'jobname' => 'None',
+                'userID' => 1,
+                'userName' => 'Guest',
+                'channel' => 1,
+                'dateTime' => date('Y-m-d H:i:s'),
+                'text' => $this->input->post('q4', TRUE),
+                'ip' => '127.0.0.1'
+            );
+            $this->db->insert('ajax_chat_messages', $post_to_chat_box_q4);
+        }
+
+        //send email
+        $trans_email_query = $this->db->query("select * from translator where id = '" . $this->input->post('trans_id', TRUE) . "'");
+        $translator_email = $trans_email_query->row_array();
+
+        $mailTo = $translator_email['email_address'];
+
+        $data['first_name'] = $translator_email['first_name'];
+        $data['amount_owed'] = $this->input->post('amount_owed', TRUE);
+        $data['date_completed'] = $date_completed;
+
+        $this->email->set_mailtype("html");
+        $this->email->from('info@montesinotranslation.com');
+        $this->email->to($mailTo);
+        $this->email->subject('Invoice Created');
+        $html_email = $this->load->view('email/invoice_send_mail', $data, true);
+
+        $this->email->message($html_email);
+        $this->email->send();
+
+    }
+}
+
+?>

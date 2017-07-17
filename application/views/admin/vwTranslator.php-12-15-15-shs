@@ -1,0 +1,304 @@
+<?php
+$this->load->view('admin/includes/vwHeader');
+?>
+
+
+		<!-- /section:basics/navbar.layout -->
+		<div class="main-container" id="main-container">
+			<script type="text/javascript">
+				try{ace.settings.check('main-container' , 'fixed')}catch(e){}
+			</script>
+
+			<!-- #section:basics/sidebar -->
+			<?php
+				$this->load->view('admin/includes/vwSidebar-left');
+			?>
+
+			<!-- /section:basics/sidebar -->
+			<div class="main-content">
+				<div class="main-content-inner">
+					<!-- #section:basics/content.breadcrumbs -->
+					<div class="breadcrumbs" id="breadcrumbs">
+						<script type="text/javascript">
+							try{ace.settings.check('breadcrumbs' , 'fixed')}catch(e){}
+						</script>
+
+						<ul class="breadcrumb">
+							<li>
+								<i class="ace-icon fa fa-home home-icon"></i>
+								<a href="#">Home</a>
+							</li>
+
+							<li>
+								<a href="#">Translator</a>
+							</li>
+							<li class="active"> List</li>
+						</ul><!-- /.breadcrumb -->
+
+						<!-- #section:basics/content.searchbox -->
+						<!--<div class="nav-search" id="nav-search">
+							<form class="form-search">
+								<span class="input-icon">
+									<input type="text" placeholder="Search ..." class="nav-search-input" id="nav-search-input" autocomplete="off" />
+									<i class="ace-icon fa fa-search nav-search-icon"></i>
+								</span>
+							</form>
+						</div>--><!-- /.nav-search -->
+
+						<!-- /section:basics/content.searchbox -->
+					</div>
+
+					<!-- /section:basics/content.breadcrumbs -->
+					<div class="page-content">
+						<!-- #section:settings.box -->
+                        <?php
+							$this->load->view('admin/includes/vwSidebar-settings');
+						?>
+						<!-- /.ace-settings-container -->
+						
+						<!-- /section:settings.box -->
+						<div class="page-header">
+							<h1>
+								Translator
+								<small>
+									<i class="ace-icon fa fa-angle-double-right"></i>
+									View List
+								</small>
+							</h1>
+						</div><!-- /.page-header -->
+
+                        <?php if ($this->session->flashdata('msg')!="") { ?>
+                         <div class="alert alert-block alert-success">
+                            <button type="button" class="close" data-dismiss="alert">
+                                <i class="ace-icon fa fa-times"></i>
+                            </button>
+                            <p> <?php echo $this->session->flashdata('msg'); ?> </p>
+                        </div>
+                    <?php } ?>
+                           <?php if ($this->session->flashdata('wmsg')!="") { ?>
+			 <div class="alert alert-danger">
+                <button type="button" class="close" data-dismiss="alert">
+                    <i class="ace-icon fa fa-times"></i>
+                </button>
+                <p> <?php echo $this->session->flashdata('wmsg'); ?> </p>
+            </div>
+		<?php } ?>
+
+
+
+						<div class="row">
+							<div class="col-xs-12">						
+                                
+								    <div>                                    
+                                    <div class="pull-right tableTools-container"></div>
+                                    </div>
+                                    <div class="table-header">
+                                        Results for "Translator Invitation List"
+                                    </div>
+                                    <table id="dynamic-table" class="table table-striped table-bordered table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th class="center">Name</th>
+                                                 <th class="center">Email Address</th>
+                                                 <th class="center">Location</th>
+                                                 <th class="center">Language</th>
+                                                <th>Operations</th>
+                                            </tr>
+                                        </thead>
+                                        
+                                        <tbody>
+                                         <style type="text/css">
+                                .invisible2 {
+                                display:none !important;
+                                }
+                                </style>
+                                    <?php
+									
+									$attributes = array('class' => 'form-inline reset-margin', 'id' => 'myform');
+									//save the columns names in a array that we will use as filter         
+									$options_category = array();
+									foreach ($translator as $array) {
+									foreach ($array as $key => $value) {
+										$options_category[$key] = $key;
+									  }
+									  break;
+									}
+									$job=$this->uri->segment(2);
+								    echo form_open('admin_translators/'.$job, $attributes);
+									$lansql="select * from `languages`  ORDER BY `name`";
+		  							$lanquery=mysql_query($lansql);	
+									
+									?>
+									<?php echo form_label('Language:', 'search_select'); ?>  
+                                	<select id="search-select" class="select validate[required]" name="language">             						<option value=""> Select Language </option>
+                                     <?php while($lanfetch=mysql_fetch_array($lanquery)) {?>
+                                     <option value="<?php echo $lanfetch['id']; ?>" <?php if($lanfetch['id']==$language_selected){echo 'selected';}?>><?php echo $lanfetch['name']; ?>
+                                     </option>
+                                     <?php }?>                
+                                     </select>&nbsp;
+                                 
+									
+									<?php								
+									echo form_label('Search:', 'search_string');
+									echo form_input('search_string', $search_string_selected, 'style="width: 170px;
+									height: 26px;"');echo '&nbsp;';							 
+								    echo form_dropdown('order', $options_category, $order, 'class="span2 invisible2"');                                  $options_order_type = array('Asc' => 'Asc', 'Desc' => 'Desc');
+                                  echo form_dropdown('order_type', $options_order_type, $order_type_selected, 'class="span1                                  invisible2"');
+                                  $data_submit = array('name' => 'mysubmit', 'class' => 'btn btn-info btn-sm', 'value' => 'Search');
+                                  echo form_submit($data_submit);echo '&nbsp;';			  		  
+                                  echo form_close();		 		  
+                                  ?>                                                                      
+                            <!-- <button class="btn btn-info btn-reser btn-sm" onClick="reload()" >Reset</button>-->
+                              <a href="<?php echo base_url().'admin_regtranslator/reset';?>" class="btn btn-info btn-reser btn-sm yellow" >Reset</a>
+                                    <div class="clearfix">
+                                        <div class="pull-right tableTools-container"></div>
+                                    </div>
+                                      
+                                        <?php
+										$attributes = array('class' => 'form-inline reset-margin', 'id' => 'myform');	
+									//	echo'<pre>'; print_r($translator);	die;								
+  										foreach ($translator as $key => $row) {
+											
+										?>            
+                                          <tr>
+                                            <td><?php echo $row['first_name']; ?> &nbsp; <?php echo $row['last_name']; ?> </td>
+                                            <td><?php echo $row['email_address']; ?></td>
+                          					<td><?php echo $row['location']; ?></td>
+                                            <td><?php
+												$lang= $row['language'];
+												$lang= ltrim ($lang, ',');
+												$lang= rtrim($lang, ',');
+												$sql = "SELECT * FROM languages WHERE id in( " . $lang . " )";
+												$val = $this->db->query($sql);
+												$row_lang = $val->result_array();
+												$k = 0;
+												$language = '';
+												foreach ($row_lang as $rows) {
+												if($k == 0) {
+												$language.=$rows['name'];
+												} else {
+												$language.=', '.$rows['name'];
+												}					
+												$k++;
+												}
+												echo $language;
+												?>
+                                             </td>
+                                            <td>
+                                             <?php if($this->uri->segment(2)!=""){ ?>
+                                            <a class="green" href="<?php echo base_url(); ?>admin_translators/edit/<?php  echo $job;?>/<?php echo $row['id']; ?>">
+                                                <i class="ace-icon fa fa-pencil bigger-130"></i>  </a> 
+                                                <?php }else{ ?>  
+                                                 <a class="green" href="<?php echo base_url(); ?>admin_translators/edittranslator/<?php echo $row['id']; ?>">
+                                                <i class="ace-icon fa fa-pencil bigger-130"></i>  </a> 
+                                                <?php } ?> 
+                                                &nbsp; 
+											  <?php if($this->uri->segment(2)!=""){ ?>
+                                          <a href="javascript:void(0);" class="btn btn-danger" onclick="thisistest('<?php echo $row['id']; ?>','<?php echo $job; ?>')"><i class="ace-icon fa fa-trash bigger-130"></i></a>&nbsp;      
+                                             <?php } else{ ?>   
+                                                 <a href="javascript:void(0);" class="btn btn-danger" onclick="thisisdelete('<?php echo $row['id']; ?>')"><i class="ace-icon fa fa-trash bigger-130"></i></a>&nbsp;      
+                                                 <?php } ?> 
+                                   
+                                                
+                                                <?php if($this->uri->segment(2)!=""){ ?>
+                    <!-- <button type="button" class="btn btn-success" data-toggle="modal" data-target="#myModal" 
+                  data-id="<?php $transid = $row['id'] ?>"> Invite</button>	-->
+                  
+                     	
+                      <a class="various btn btn-success" data-fancybox-type="iframe" href="<?php echo base_url(); ?>admin_translator/viewdemo/<?php echo $row['id']; ?>/<?php echo $job; ?>">Invite</a>
+                      
+                     							<?php } ?>
+                                           </td>                                        
+                                         </tr>
+                                         
+                                        <?php
+                                           
+										    }
+                                        ?>
+                                         
+                                         
+                                        
+                                        </tbody>
+                                    </table>                                 
+                                    <?php echo '<div class="pagination">'.$this->pagination->create_links().'</div>'; ?>
+                                    
+        
+        </div>
+                                <button class="btn btn-info btn-sm" onclick="goBack()">Go Back</button>
+							</div><!-- /.col -->
+						</div><!-- /.row -->
+					</div><!-- /.page-content -->
+				</div>
+			</div><!-- /.main-content -->
+		</div><!-- /.main-container -->
+        
+      <?php
+$this->load->view('admin/includes/vwFooter');
+?>
+ <link rel="stylesheet" href="<?php echo base_url(); ?>assets/fancybox/source/jquery.fancybox.css" type="text/css" media="screen" />
+<script type="text/javascript" src="<?php echo base_url(); ?>assets/fancybox/source/jquery.fancybox.pack.js"></script> 
+<script type="text/javascript">
+	$(document).ready(function() {
+		//$(".fancybox").fancybox();
+		$(".various").fancybox({
+		maxWidth	: 800,
+		maxHeight	: 600,
+		fitToView	: false,
+		width		: '70%',
+		height		: '70%',
+		autoSize	: false,
+		closeClick	: false,
+		openEffect	: 'none',
+		closeEffect	: 'none'
+	});
+	});
+	
+</script>
+
+
+
+
+
+<script type="text/javascript">
+function thisistest(id, job) {
+	
+	del =confirm("Are you sure to delete permanently?");
+	if(del!=true) {
+        return false;
+    }
+	else {
+		window.location.href="<?php echo base_url(); ?>admin_translators/delete/"+job+"/"+id;
+	}
+}
+</script>      
+ 
+ <script type="text/javascript">
+function thisisdelete(id) {//alert("hello");
+	
+	del =confirm("Are you sure to delete permanently?");
+	if(del!=true) {
+        return false;
+    }
+	else {
+		window.location.href="<?php echo base_url(); ?>admin_translators/deletetranslator/"+id;
+	}
+}
+</script>  
+        
+<script>
+function goBack() {
+    window.history.back();
+}
+</script>
+
+<!--<script type="text/javascript">
+$(document).on('click','a#myexample',function() {
+    val = $(this).attr('data-id'); // this should now contain 'yourvalue'
+
+    $.post('invitemodal.php', { param: val }, function(data) {
+        // you could check the contents of data here, or perhaps write it for debug purposes
+    });
+});
+</script>-->
+
+

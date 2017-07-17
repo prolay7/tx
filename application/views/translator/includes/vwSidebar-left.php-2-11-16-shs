@@ -1,0 +1,127 @@
+<div id="sidebar" class="sidebar responsive">
+				<!--<script type="text/javascript">
+					try{ace.settings.check('sidebar' , 'fixed')}catch(e){}
+				</script>
+				<script type="text/javascript">
+                jQuery(document).ready(function() { 
+                jQuery(".a").click(function(){
+                jQuery(".a").removeClass("active");
+                jQuery(this).addClass("active");
+                });
+                });
+                </script>-->
+				<!--<div class="sidebar-shortcuts" id="sidebar-shortcuts">
+                
+					<div class="sidebar-shortcuts-large" id="sidebar-shortcuts-large">
+						<button class="btn btn-success">
+							<i class="ace-icon fa fa-signal"></i>
+						</button>
+
+						<button class="btn btn-info">
+							<i class="ace-icon fa fa-pencil"></i>
+						</button>
+						<button class="btn btn-warning">
+							<i class="ace-icon fa fa-users"></i>
+						</button>
+
+						<button class="btn btn-danger">
+							<i class="ace-icon fa fa-cogs"></i>
+						</button>
+					</div>
+
+					<div class="sidebar-shortcuts-mini" id="sidebar-shortcuts-mini">
+						<span class="btn btn-success"></span>
+
+						<span class="btn btn-info"></span>
+
+						<span class="btn btn-warning"></span>
+
+						<span class="btn btn-danger"></span>
+					</div>
+                    
+				</div>-->
+                
+                <!-- /.sidebar-shortcuts -->
+                <script type="text/javascript">
+ /*menu handler*/
+ $(function(){
+  function stripTrailingSlash(str) {
+   var resultArr = str.split('/');
+   if(resultArr[resultArr.length-1] == ''){
+    var str = resultArr[resultArr.length-2];
+   } else {
+    var str = resultArr[resultArr.length-1];
+   }   
+   return str;
+  }
+  
+  var url = window.location.pathname;  
+  var activePage = stripTrailingSlash(url);
+  $('.menuclass').parent().removeClass('active'); 
+  $('.menuclass').each(function(){  
+   var currentPage = stripTrailingSlash($(this).attr('href'));
+   
+   if (activePage == currentPage) {
+    jQuery(this).parent().addClass('active'); 
+   } 
+  });
+ });
+</script>
+<!--  <script type="text/javascript">
+		jQuery(document).ready(function(){
+			get_not();
+		
+		});
+		function get_not() {
+				//alert("hello");
+				$.ajax({
+					type: "POST",
+					url: "<?php echo base_url(); ?>" + "translator/notification",
+					success: function (data, textStatus){  
+					//alert(data);
+					setTimeout(function(){get_not();}, 5000);
+					//jQuery('#university').html(data);
+					$('#blue').html(data);
+					//alert(data);
+					}
+				});
+			}
+</script> 
+--> 
+				
+                <div id="about-us-navigation" class="box-1">
+          <div class="a">
+            <ul>
+            
+              <li class="active"><a href="<?php echo base_url(); ?>translator/" class="menuclass">Dashboard</a></li>
+              <li><a href="<?php echo base_url(); ?>translator/changeprofile" class="menuclass">Edit Profile</a></li>
+              <li><a href="<?php echo base_url(); ?>translator/changeprofilepicture" class="menuclass"> Profile Picture</a></li>
+              <li><a href="<?php echo base_url(); ?>translator/changepassword" class="menuclass">Change Password </a></li>
+           <!--   <li><a href="<?php echo base_url(); ?>translator/message" class="menuclass"> Messages</a></li>-->
+              
+              <li><a href="<?php echo base_url(); ?>translator/chat" class="menuclass">Messages</a></li>
+              
+               <li><a href="<?php echo base_url(); ?>translator/proposal" class="menuclass">Proposals</a></li>
+              <li><a href="<?php echo base_url(); ?>translator/award" class="menuclass">My Works</a></li>
+              <li><a href="<?php echo base_url(); ?>translator/working" class="menuclass"> Working Jobs</a></li>
+              <li><a href="<?php echo base_url(); ?>translator/earning" class="menuclass"> Earning</a></li>
+               <li><a href="<?php echo base_url(); ?>translator/invoice" class="menuclass"> Invoice</a></li>
+              <li><a href="<?php echo base_url(); ?>translator/paypal" class="menuclass">Paypal Info</a></li>
+              <li><a href="<?php echo base_url(); ?>translator/logout" class="menuclass"> Logout</a></li>
+            </ul>
+          </div>
+        </div>
+                
+                
+			<!-- /.nav-list -->
+
+				<!-- #section:basics/sidebar.layout.minimize 
+				<div class="sidebar-toggle sidebar-collapse" id="sidebar-collapse">
+					<i class="ace-icon fa fa-angle-double-left" data-icon1="ace-icon fa fa-angle-double-left" data-icon2="ace-icon fa fa-angle-double-right"></i>
+				</div>-->
+
+				<!-- /section:basics/sidebar.layout.minimize -->
+				<script type="text/javascript">
+					try{ace.settings.check('sidebar' , 'collapsed')}catch(e){}
+				</script>
+			</div>

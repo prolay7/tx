@@ -1,0 +1,162 @@
+<?php
+	include('database.php');
+	date_default_timezone_set('America/New_York');
+    $function = $_POST['function'];
+    $log = array();
+	
+	
+	
+    
+    switch($function) {
+		
+    
+    	 case('getState'):        	 
+             $log['state'] = 0; 
+        	 break;	
+    	
+    	 case('update'):
+			
+        	$state = $_REQUEST['state'];
+			$bid_id = mysql_real_escape_string($_REQUEST['bid_id']);
+			$job_id = mysql_real_escape_string($_REQUEST['job_id']);
+			$trns_id = mysql_real_escape_string($_POST['trns_id']);
+			$type = mysql_real_escape_string($_REQUEST['type']);
+
+			$sql2 = "UPDATE `ajax_chat_messages` SET `status`='read' WHERE `job_id`='".$job_id."' AND `bid_id`='".$bid_id."' AND `type`!='".$type."'";
+			$result2 = mysql_query($sql2);
+			
+			$sql = "SELECT * FROM `ajax_chat_messages` WHERE `job_id`='".$job_id."' AND `bid_id`='".$bid_id."'  AND `trans_id`='".$trns_id."' ";
+			//$sql = "SELECT * FROM `ajax_chat_messages`";
+			$result = mysql_query($sql);
+			$count = mysql_num_rows($result);
+			$log['testdata'] = $state .'=='. $count;
+        	 if($state == $count){
+        		 $log['state'] = $state;
+        		 $log['text'] = false;
+        		 
+        		 }
+        		 else{
+					$text= array();
+					$log['state'] = $state + $count - $state;											
+					$i=0;
+					$j=0;
+					$oldmsgdate=0;
+					//$sameuser='display: block';
+					$line_num = 0;
+						if (mysql_num_rows($result) > 0) {
+											
+							while($row = mysql_fetch_assoc($result)) {							
+							$line_num++;
+							if($line_num > $state) {
+								//$text[] =  '<span>Guest</span>'.$row["text"];
+								if ($row["type"] == 'admin') {
+							 $sql1="SELECT * FROM `admin` WHERE `id` = 1 ";
+							 $authImg = "http://".$_SERVER['HTTP_HOST']."/trans/chat-box/assets/img/admin-button-icon-md.png";
+								
+							} 
+							else {
+								$sql1="SELECT * FROM `translator` WHERE `id` ='".$trns_id."' ";
+								$result1 = mysql_query($sql1);
+								$row1 = mysql_fetch_assoc($result1);
+								$row1["images"];
+								if($row1["images"]!="") {								
+									$authImg = "http://".$_SERVER['HTTP_HOST']."/uploads/translator/profile/".$row1["images"];
+								}
+								else {
+									$authImg = "http://".$_SERVER['HTTP_HOST']."/trans/chat-box/assets/img/user-image-with-black-background_318-34564.png";
+								}								
+							}
+							
+							$result1 = mysql_query($sql1);
+							$row1 = mysql_fetch_assoc($result1);								
+							if($row['type'] == $type) {
+								$cls = 'right';
+								$fullcls='full_div_chat';
+								$i=$i+1;
+								$j=0;							
+							} 
+							else  {
+								$i=0;
+								$j=$j+1;
+								$cls = 'left';
+								$fullcls='full_div_white';
+							}
+								$msgdate=date_create($row["dateTime"]);
+								$chkdate = date_format($msgdate, 'mdyhi');
+								$mgdat=date_format($msgdate, 'M,d,y');
+								$mgdate1=date_format($msgdate, 'g:iA');
+								    if(($i>1 and $cls=='right') or ($j>1 and $cls=='left'))  {
+										if($chkdate==$oldmsgdate) {
+											$AuthorDetails = '<div class="'.$fullcls.'"><div class="chat-box-name-'.$cls.'"></div>';
+											$AuthorMsg = '<div class="chat-box-'.$cls.'">'.$row["text"].'</div>';								
+											$msgdat='</div>';
+											//$text[] =  $AuthorDetails . $AuthorMsg . $msgdat;
+									    }
+										else {
+											$AuthorDetails = '<div class="'.$fullcls.'"><div class="chat-box-name-'.$cls.'"></div>';
+											$AuthorMsg = '<div class="chat-box-'.$cls.'">'.$row["text"].'</div>';								
+											$msgdat='<div class="fullchat_date">'.$mgdat.'<br>'.$mgdate1.'</div></div>';
+											//$text[] =  $AuthorDetails . $AuthorMsg . $msgdat;
+										}
+										
+									}
+									else {
+										if($chkdate==$oldmsgdate) {
+											$AuthorDetails = '<div class="'.$fullcls.'"><div class="chat-box-name-'.$cls.'">'.$row1["first_name"].' '.$row1["last_name"].'</div>';
+											$AuthorMsg = '<div class="chat-box-'.$cls.'">'.$row["text"].'</div>';								
+											$msgdat='</div>';
+											//$text[] =  $AuthorDetails . $AuthorMsg . $msgdat;
+									    }
+										else {
+											$AuthorDetails = '<div class="'.$fullcls.'"><div class="chat-box-name-'.$cls.'">'.$row1["first_name"].' '.$row1["last_name"].'</div>';
+											$AuthorMsg = '<div class="chat-box-'.$cls.'">'.$row["text"].'</div>';								
+											$msgdat='<div class="fullchat_date">'.$mgdat.'<br>'.$mgdate1.'</div></div>';
+											//$text[] =  $AuthorDetails . $AuthorMsg . $msgdat;
+										}											
+									}
+									$oldmsgdate=$chkdate;
+									$text[] =  $AuthorDetails . $AuthorMsg . $msgdat;
+								}
+								
+								
+							}
+						}						
+												
+        			 $log['text'] = $text; 
+        		 }
+             break;
+    	 
+    	 case('send'):	 
+			$bid_id = $_REQUEST['bid_id'];
+			$job_id = $_REQUEST['job_id'];
+			$trns_id = $_REQUEST['trns_id'];
+			$type = $_REQUEST['type'];
+			/*$bid_id = '42'; //$_POST['bid_id'];
+			$job_id = '59'; //$_POST['job_id'];
+			$trns_id = '25'; //$_POST['trns_id'];
+			$type = $_REQUEST['type'];*/
+		 
+			$nickname = htmlentities(strip_tags($_POST['nickname']));
+			$reg_exUrl = "/(http|https|ftp|ftps)\:\/\/[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,3}(\/\S*)?/";
+			$message = htmlentities(strip_tags($_POST['message']));
+		
+			if(($message) != "\n"){ 		 
+				if(preg_match($reg_exUrl, $message)) {
+					$link=explode("/",$message);
+					$link1=end($link);
+					$message = '<a href="'.$message.'" target="_blank">'.$link1.'</a> ';
+				}
+				$sqljob="select * from jobpost where id=$job_id";
+				$res=mysql_query($sqljob);
+				$fetch=mysql_fetch_assoc($res);
+				$job_name= $fetch['name'];
+				 
+				$sql = "INSERT INTO `ajax_chat_messages` (`bid_id`,`job_id`,`trans_id`,`type`,`status`,`jobname`,`userID`, `userName`, `channel`, `dateTime`, `ip`, `text`) VALUES ('".$bid_id."','".$job_id."','".$trns_id."','".$type."','unread','".$job_name."','1', '".$nickname."', '1', '".date('Y-m-d G:i:s')."', '127.0.01', '".$message."')";
+				mysql_query($sql);				 
+			}
+        	 break;	
+    }
+    
+    echo json_encode($log);
+
+?>

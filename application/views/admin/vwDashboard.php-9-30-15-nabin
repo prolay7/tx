@@ -1,0 +1,142 @@
+<?php
+$this->load->view('admin/includes/vwHeader');
+?>
+
+
+		<!-- /section:basics/navbar.layout -->
+		<div class="main-container" id="main-container">
+			<script type="text/javascript">
+				try{ace.settings.check('main-container' , 'fixed')}catch(e){}
+			</script>
+
+			<!-- #section:basics/sidebar -->
+			<?php
+				$this->load->view('admin/includes/vwSidebar-left');
+			?>
+			<div class="main-content">
+				<div class="main-content-inner">
+					<!-- #section:basics/content.breadcrumbs -->
+					<div class="breadcrumbs" id="breadcrumbs">
+						<script type="text/javascript">
+							try{ace.settings.check('breadcrumbs' , 'fixed')}catch(e){}
+						</script>
+
+						<ul class="breadcrumb">
+							<li>
+								<i class="ace-icon fa fa-home home-icon"></i>
+								<a href="#">Home</a>
+							</li>
+
+							<li>
+								<a href="#">Dashboard</a>
+							</li>
+							
+						</ul><!-- /.breadcrumb -->
+
+						<!-- #section:basics/content.searchbox -->
+						<!--<div class="nav-search" id="nav-search">
+							<form class="form-search">
+								<span class="input-icon">
+									<input type="text" placeholder="Search ..." class="nav-search-input" id="nav-search-input" autocomplete="off" />
+									<i class="ace-icon fa fa-search nav-search-icon"></i>
+								</span>
+							</form>
+						</div>--><!-- /.nav-search -->
+
+						<!-- /section:basics/content.searchbox -->
+					</div>
+
+					<!-- /section:basics/content.breadcrumbs -->
+					<div class="page-content">
+						<!-- #section:settings.box -->
+                        <?php
+							$this->load->view('admin/includes/vwSidebar-settings');
+						?>
+						<!-- /.ace-settings-container -->
+						
+						<!-- /section:settings.box -->
+						<div class="page-header">
+							<h1>
+								overview & stats								
+							</h1>
+						</div><!-- /.page-header -->
+
+						<div class="row">
+							<div class="col-xs-12">
+								<!-- PAGE CONTENT BEGINS -->
+                                
+                             <?php if($this->session->flashdata('success_message'))
+							    { ?>
+								 <div class="alert alert-block alert-success">	
+								 <button type="button" class="close" data-dismiss="alert">
+                                 <i class="ace-icon fa fa-times"></i>
+                                 </button>	
+									
+                                <p><?php echo $this->session->flashdata('success_message'); ?></p>
+                                 </div>
+								
+                               <?php 
+							   } 
+							  ?>
+                                 <?php if($this->session->flashdata('error_message'))
+							    { ?>
+								 <div class="alert alert-block alert-danger">	
+								 <button type="button" class="close" data-dismiss="alert">
+                                 <i class="ace-icon fa fa-times"></i>
+                                 </button>	
+									
+                                <p><?php echo $this->session->flashdata('error_message'); ?></p>
+                                 </div>
+								
+                               <?php 
+							   } 
+							  ?>
+                               
+								<div class="alert alert-block alert-success">
+									<button type="button" class="close" data-dismiss="alert">
+										<i class="ace-icon fa fa-times"></i>
+									</button>
+
+									<i class="ace-icon fa fa-check green"></i>
+
+									Welcome to
+									<strong class="green">
+										Translation
+									</strong>, Admin panel.
+								</div>
+                                <div class="admin_logo">
+                                <ul>
+ 
+ <li><a target="_blank" href="<?php echo base_url().'admin/changeprofile';?>"><img src="<?php echo HTTP_ASSETS_PATH_ADMIN; ?>images/changeprofile.jpg" width="150"></a></li>
+ 
+ <li><a target="_blank" href="<?php echo base_url().'admin/changepass';?>"><img src="<?php echo HTTP_ASSETS_PATH_ADMIN; ?>images/changepassword.jpg" width="150"></a></li>
+ 
+ <li><a target="_blank" href="<?php echo base_url().'admin/sitesettings';?>"><img src="<?php echo HTTP_ASSETS_PATH_ADMIN; ?>images/sitesetting.png" width="150"></a></li>
+ </ul>
+                                </div>
+
+								<!-- PAGE CONTENT ENDS -->
+							</div><!-- /.col -->
+						</div>
+                   <!-- /.row -->
+					</div><!-- /.page-content -->
+		<!---->		</div>
+			</div>
+            
+		
+		</div>
+     <script type="text/javascript">
+function doconfirm()
+{
+    del =confirm("Are you sure to delete permanently?");
+    if(del!=true)
+    {
+        return false;
+    }
+}
+</script>
+   
+       
+<?php
+$this->load->view('admin/includes/vwFooter');
+?>

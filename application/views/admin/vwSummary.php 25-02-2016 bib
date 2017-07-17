@@ -1,0 +1,562 @@
+<?php
+$this->load->view('admin/includes/vwHeader');
+?>
+
+
+		<!-- /section:basics/navbar.layout -->
+		<div class="main-container" id="main-container">
+			<script type="text/javascript">
+				try{ace.settings.check('main-container' , 'fixed')}catch(e){}
+			</script>
+
+			<!-- #section:basics/sidebar -->
+			<?php
+				$this->load->view('admin/includes/vwSidebar-left');
+			?>
+
+			<!-- /section:basics/sidebar -->
+			<div class="main-content">
+				<div class="main-content-inner">
+					<!-- #section:basics/content.breadcrumbs -->
+					<div class="breadcrumbs" id="breadcrumbs">
+						<script type="text/javascript">
+							try{ace.settings.check('breadcrumbs' , 'fixed')}catch(e){}
+						</script>
+
+						<ul class="breadcrumb">
+							<li>
+								<i class="ace-icon fa fa-home home-icon"></i>
+								<a href="#">Home</a>
+							</li>
+
+							<li>
+								<a href="#">Job </a>
+							</li>
+							<li class="active">Summary</li>
+						</ul><!-- /.breadcrumb -->
+
+						<!-- #section:basics/content.searchbox -->
+						<!--<div class="nav-search" id="nav-search">
+							<form class="form-search">
+								<span class="input-icon">
+									<input type="text" placeholder="Search ..." class="nav-search-input" id="nav-search-input" autocomplete="off" />
+									<i class="ace-icon fa fa-search nav-search-icon"></i>
+								</span>
+							</form>
+						</div>--><!-- /.nav-search -->
+
+						<!-- /section:basics/content.searchbox -->
+					</div>
+
+					<!-- /section:basics/content.breadcrumbs -->
+					<div class="page-content">
+						<!-- #section:settings.box -->
+                        <?php
+							$this->load->view('admin/includes/vwSidebar-settings');
+						?>
+						<!-- /.ace-settings-container -->
+						
+						<!-- /section:settings.box -->
+						<div class="page-header">
+							<h1>
+								Job
+								<small>
+									<i class="ace-icon fa fa-angle-double-right"></i>
+									Summary
+								</small>
+							</h1>
+						</div><!-- /.page-header -->
+
+                        <?php if ($this->session->flashdata('msg')!="") { ?>
+                         <div class="alert alert-block alert-success">
+                            <button type="button" class="close" data-dismiss="alert">
+                                <i class="ace-icon fa fa-times"></i>
+                            </button>
+                            <p> <?php echo $this->session->flashdata('msg'); ?> </p>
+                        </div>
+                    <?php } ?>
+                           <?php if ($this->session->flashdata('wmsg')!="") { ?>
+			 <div class="alert alert-danger">
+                <button type="button" class="close" data-dismiss="alert">
+                    <i class="ace-icon fa fa-times"></i>
+                </button>
+                <p> <?php echo $this->session->flashdata('wmsg'); ?> </p>
+            </div>
+		<?php } ?>
+						 <?php 		$job_id= $this->uri->segment(3);     
+									$sql1 = "SELECT * FROM jobpost WHERE id = '$job_id'";
+									$val1 = $this->db->query($sql1);
+									$fetch1= $val1->row(); 
+						?>
+							
+                        <div class="row">
+                            <div class="col-xs-2">	
+                            <h4 class="blue">Job Name:</h4>
+                            </div>
+                            <div class="col-xs-8">	
+                            <h5> <?php echo $fetch1->name; ?></h5>
+                        </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-2">	
+                            <h4 class="blue">Job Details:</h4>
+                            </div>
+                            <div class="col-xs-8">	
+                            <h5> <?php echo $fetch1->description; ?></h5>
+                            </div>
+                        </div> 
+                          <div class="row">
+                            <div class="col-xs-2">	
+                            <h4 class="blue">Translate To:</h4>
+                            </div>
+                            <?php 
+							$sql2 = "SELECT * FROM languages WHERE id = '$fetch1->language;'";
+							$val2 = $this->db->query($sql2);
+							$fetch2= $val2->row(); 
+                            ?>
+                            <div class="col-xs-2">	
+                            <h5> <?php echo $fetch2->name; ?></h5>
+                            </div>
+                             <div class="col-xs-2">	
+                            <h4 class="blue">Translate From:</h4>
+                            </div>
+                             <?php 
+							$sql3 = "SELECT * FROM languages WHERE id = '$fetch1->language_from;'";
+							$val3 = $this->db->query($sql3);
+							$fetch3= $val3->row(); 
+                            ?>
+                            <div class="col-xs-2">	
+                            <h5> <?php echo $fetch3->name; ?></h5>
+                            </div>
+                             </div> 
+							<?php
+							/*$domain = strstr($fetch1->file, '/',true);
+							//echo $domain;die;
+							$filename = strstr($fetch1->file, '/');
+							
+							$str = ltrim($filename, '/');
+							//echo $str;die; 
+                            $string=rtrim($str, " "); */
+                            $view=explode("##", $fetch1->file);
+							
+                            array_pop($view);
+                          //  print_r($view);
+                            $num_of_file= count($view);
+                            ?> 
+                               <?php 
+					 for ($i = 0; $i < $num_of_file; $i++){
+						 if($view[$i]!="" && file_exists("./uploads/jobpost/".$view[$i])) {
+							 $vie = strstr($view[$i], '/');
+							 $str = ltrim($vie, '/');
+							 if($str == ''){
+								 $str = $view[$i];
+								 }
+							// echo $str;die;
+						
+				?>
+               
+                    <div style="display: inline-block; margin-bottom: 20px;"><a href="<?php echo base_url(); ?>uploads/jobpost/<?php echo $view[$i]; ?>" class="btn btn-app btn-purple btn-lg" target="_blank" ><?php echo $str; ?></a></div>
+                    <?php } } ?>
+					  
+                      
+                         <div class="row">
+                            <div class="col-xs-2">	
+                            <h4 class="blue">Job Status:</h4>
+                            </div>
+                            <div class="col-xs-8">	
+                           
+                               
+                     <?php if($fetch1->stage!='2') { ?>
+                  <strong> Open</strong> 
+                     <a href="#" style="margin-left:36px;"><button onclick="hiring(<?php echo $job_id; ?>)" type="button" class="btn btn-danger " aria-haspopup="true" aria-expanded="false">END HIRING</button></a> 
+					 <?php } ?>
+                             
+                             
+                              <?php if($fetch1->stage=='2') { ?>
+					<strong>Close</strong>
+                              <a href="#" style="margin-left:36px;"><button onclick="openhiring(<?php echo $job_id; ?>)"  type="button" class="btn btn-success " aria-haspopup="true" aria-expanded="false">HIRING</button></a>
+							  <?php } ?>
+                        </div> 
+                            </div>
+                    
+
+						<div class="row">
+							<div class="col-xs-12">
+								<!-- PAGE CONTENT BEGINS -->
+								<div class="tabbable">
+									<!-- #section:pages/faq -->
+									<ul class="nav nav-tabs padding-18 tab-size-bigger" id="myTab">
+										<li class="active">
+											<a data-toggle="tab" href="#faq-tab-1">
+												<i class="green ace-icon fa fa-user bigger-120"></i>
+												Translator Bids
+											</a>
+										</li>
+
+										<li>
+											<a data-toggle="tab" href="#faq-tab-2">
+												<i class="blue ace-icon fa fa-user bigger-120"></i>
+												Invitations
+											</a>
+										</li>
+
+										
+									</ul>
+
+									<!-- /section:pages/faq -->
+									<div class="tab-content no-border padding-24">
+										<div id="faq-tab-1" class="tab-pane fade in active">
+											<h4 class="blue">
+												<i class="green ace-icon fa fa-user bigger-110"></i>
+												Translator Bids
+											</h4>
+
+											<div class="space-8"></div>
+                                      <table id="dynamic-table" class="table table-striped table-bordered table-hover">
+                                        <thead>
+                                            <tr> <th class="center">Job Title</th>
+                                                 <th class="center">Translator Name</th>
+                                                 <th class="center">Translator Image</th>
+                                                
+                                                 <th class="center">Time Need</th>
+                                                 <th class="center">Price</th>
+                                                 
+                                                 <th class="center">Awarded</th>
+                                                 <th class="center">Message</th>
+                                                 <!--<th class="center">Invoice</th>-->
+                                                 <!-- <th class="center">Canceled</th>-->
+                                                 <th>Bid Details</th>
+                                                
+                                            </tr>
+                                        </thead>
+                                        
+                                        <tbody>
+                                        <style type="text/css">
+											.order_by_cls {
+												display:none;	
+											}
+										</style>
+											<?php
+											
+										$sql5 = "SELECT * FROM bidjob WHERE job_id = '$job_id;' ORDER BY id DESC";
+										$val5 = $this->db->query($sql5);
+										$fetch5= $val5->result_array();
+										//echo'<pre>'; print_r($fetch5);
+										  foreach($fetch5 as $key => $val){ 
+											//echo '<pre>'; print_r($val);die;
+											
+											$translator_id=$val['trans_id'];
+											$sql="select * from `translator` where `id`='$translator_id'";
+											$query=mysql_query($sql);
+											$fetch=mysql_fetch_array($query);
+											$trans_name=$fetch['first_name'].'&nbsp;'.$fetch['last_name'];
+											
+											$trans_pic=$fetch['images'];
+											//echo $trans_pic;
+											$job_id=$val['job_id'];
+											$sql1="select * from `jobpost` where `id`='$job_id'";
+											$query1=mysql_query($sql1);
+											$fetch1=mysql_fetch_array($query1);
+											$job_title=$fetch1['name'];
+                                            ?>
+                                            <tr>
+                                           <td><a href="<?php echo base_url(); ?>admin_jobpost/edit/<?php echo $job_id; ?>" target="_blank"></a><?php echo $job_title; ?></td> 
+                                           
+                                           <td><a href="<?php echo base_url().'admin/translators/edit/'.$val['trans_id']; ?>" target="_blank"></a><?php echo $trans_name; ?></td>
+                                           
+                                           <td><?php if($trans_pic!="" && file_exists("./uploads/translator/profile/".$trans_pic)) { ?>
+            <img alt="" src="<?php echo base_url(); ?>uploads/translator/profile/<?php echo $trans_pic; ?>" width="100px;">
+           <?php } ?>  
+                                           </td>
+                                           <!-- <td>
+                                              
+											<?php 
+											if(strlen($val['proposal'])>75)
+											{
+											echo substr($val['proposal'],0,75).'...'; 
+                                            }
+                                            else
+                                            {
+                                            echo $val['proposal'];
+                                            }
+                                            ?>
+                                            
+                                            </td>-->
+                                             <?php $time=$val['time_need'];
+										   $time= $time/1440;
+										   ?> 
+                                            <td><?php echo  $time; ?>&nbsp;Day(s)</td>
+                                            <td>$<?php echo $val['price']; ?></td>
+                                           <!-- <td><a href="<?php echo base_url(); ?>uploads/bidjobpost/<?php echo $val['file']; ?>" class="btn btn-success" target="_blank"> View  </a></td> 
+                                           -->
+                          
+                            
+ <td><a href="#"><?php if($val['awarded']=='0') { ?><button onclick="confir(<?php echo $val['id']; ?>,<?php echo $val['job_id'];?>)" type="button" class="btn btn-danger " aria-haspopup="true" aria-expanded="false">No</button><?php } ?></a> 
+ 
+ <a href="#"><?php if($val['awarded']=='1') { ?><button  onclick="dconfir(<?php echo $val['id']; ?>,<?php echo $val['job_id'];?>)"type="button" class="btn btn-success " aria-haspopup="true" aria-expanded="false">Yes</button><?php } ?></a>
+ 
+
+ </td>                                        
+                                            
+                                            
+                           
+                            
+<!--<td><a href="#"><?php if($val['canceled']=='0') { ?><button onclick="canconfir(<?php echo $val['id']; ?>,<?php echo $val['job_id'];?>)" type="button" class="btn btn-danger " aria-haspopup="true" aria-expanded="false">No</button><?php } ?></a>
+
+<a href="#"><?php if($val['canceled']=='1') { ?><button onclick="dcanconfir(<?php echo $val['id']; ?>,<?php echo $val['job_id'];?>)" type="button" class="btn btn-success " aria-haspopup="true" aria-expanded="false">Yes</button><?php } ?></a>
+
+
+ </td>   -->                      
+                            <td>
+                            <?php 
+							$bid_id=$val['id'];
+							$invoicesql="select `bid_id` from `message` where `bid_id`='$bid_id' ";	
+							$invoicequery=$this->db->query($invoicesql);
+							$invoice_num=$invoicequery->num_rows();
+							
+								
+							?>
+ <!--  <a class="btn btn-info" href="<?php echo base_url(); ?>admin_jobpost/message/<?php echo $bid_id; ?>/<?php echo $val['job_id']; ?>/<?php echo $val['trans_id']; ?>">
+                            &nbsp;&nbsp;<i class="fa fa-envelope"></i>&nbsp;Send Message &nbsp;&nbsp;&nbsp;&nbsp;
+                            </a>        -->                   
+                            
+                            <a class="btn btn-info" href="<?php echo base_url(); ?>chat-box/?bid_id=<?php echo $bid_id; ?>&job_id=<?php echo $val['job_id']; ?>&trans_id=<?php echo $val['trans_id']; ?>&type=<?php echo "admin"; ?>" target="_blank">
+                            &nbsp;&nbsp;<i class="fa fa-envelope"></i>&nbsp;Chat &nbsp;&nbsp;&nbsp;&nbsp;
+                            </a> 
+                            
+                            
+                            </td>
+                               
+                            
+                            
+                                <td>
+                                <div class="hidden-sm hidden-xs action-buttons">
+          <a class="green" href="<?php echo base_url(); ?>admin_jobpost/bidjobedit/<?php echo $val['id']; ?>">
+                                <i class="ace-icon fa fa-pencil bigger-130"></i></a>
+                                <a class="red" href="#"  onclick="alert1(<?php echo $val['job_id']; ?>,<?php echo $val['id']; ?>)">
+                                <i class="ace-icon fa fa-trash-o bigger-130"></i>  
+                                </a>  
+                                <a class="various btn btn-success" data-fancybox-type="iframe" href="<?php echo base_url(); ?>admin_jobpost/viewbiddetails/<?php echo $val['id']; ?>"> <i class="fa fa-eye"></i>View </a>
+                               
+                                </div>
+                                </td>
+                                          </tr>
+                                            <?php
+											}
+											?>
+                                            
+											</tbody>
+                                      </table>
+										</div>
+
+										<div id="faq-tab-2" class="tab-pane fade">
+											<h4 class="blue">
+												<i class="blue ace-icon fa fa-user bigger-110"></i>
+												Invitations
+											</h4>
+
+											<div class="space-8"></div>
+									   <table id="dynamic-table" class="table table-striped table-bordered table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th class="center blue">Translator Name</th>
+                                                 <th class="center blue">Translator Email Addresses</th>
+                                                
+                                            </tr>
+                                        </thead>
+                                        
+                                        <tbody>
+                                         <?php 
+										
+										$sql4 = "SELECT * FROM send_invitation WHERE job_id = '$job_id;'";
+										$val4 = $this->db->query($sql4);
+										$fetch4= $val4->result_array();
+										//echo'<pre>'; print_r($fetch4);
+										$new_invite=array();
+										foreach($fetch4 as $count){
+											
+											$invite=$count['invite_id'];
+											
+											if (strpos($invite, ',') == false) {
+												array_push($new_invite, $invite);
+											}
+											
+											if (strpos($invite, ',') !== false) {
+											$newarray=explode(", ",$invite);
+												foreach($newarray as $new){
+													array_push($new_invite, $new);
+												}
+											}
+											
+											//echo'<pre>';print_r($new_invite);
+										}
+										foreach($new_invite as $row){
+											//echo'<pre>';print_r($row);
+											
+											?>            
+                                          <tr>
+                                            <td>
+											 <?php 
+											// $invite_id=$row['invite_id'];
+										
+											//$invite_id = str_replace(",", "', '", $invite_id);
+											$invite_sql = "SELECT * FROM `translator` WHERE `id` ='" .$row. "'";
+											$invite_query= $this->db->query($invite_sql);
+											//echo '<pre>';print_r($invite_fetch= $invite_query->result());
+											$invite_count=$invite_query->num_rows();											
+										  
+											 if($invite_count>1)
+											 {
+											 $invite_fetch= $invite_query->result();
+											 foreach($invite_fetch as $invite_row)
+											 {
+											 echo $invite_row->first_name.'&nbsp;'.$invite_row->last_name.',';
+										     }
+											 }
+											 if($invite_count==1)
+											 {
+											 $invite_fetch= $invite_query->row(); 
+											 echo $invite_fetch->first_name.'&nbsp;'.$invite_fetch->last_name;
+											 }
+											 ?>
+                                             </td>
+                                            <td>
+											<?php
+											 if($invite_count>1)
+											 {
+											 $invite_fetch= $invite_query->result();
+											 foreach($invite_fetch as $invite_row)
+											 {
+											 echo $invite_row->email_address.',';
+										     }
+											 }
+											 if($invite_count==1)
+											 {
+											 $invite_fetch= $invite_query->row(); 
+											 echo $invite_fetch->email_address;
+											 }
+											 ?>
+                                             
+                                             </td>
+                                            
+											</tr>
+											<?php	
+												}
+                                            ?>
+                                        
+                                        
+                                        
+                                        </tbody>
+                                    </table>    
+                                        </div>
+
+									
+									</div>
+								</div>
+
+								<!-- PAGE CONTENT ENDS -->
+							</div><!-- /.col -->
+						</div><!-- /.col -->
+						</div><!-- /.row -->
+					</div><!-- /.page-content -->
+				</div>
+			</div><!-- /.main-content -->
+		</div><!-- /.main-container -->
+
+<script type="text/javascript">
+function alert1(id)
+{
+    del =confirm("Are you sure to delete permanently?");
+    if(del!=true)
+    {
+        return false;
+    }
+	else
+	{
+	window.location.href="<?php echo base_url(); ?>admin_translator/delete/"+id;
+	}
+}
+</script>
+<script type="text/javascript">
+function confir(id,job_id)
+{
+    con=confirm("Are you sure to award this project?");
+    if(con!=true)
+    {
+        return false;
+    }
+	else
+	{
+	window.location.href="<?php echo base_url(); ?>admin/awardupdate/"+id+"/"+job_id;
+	}
+	
+}
+</script>
+<script type="text/javascript">
+function dconfir(id,job_id)
+{
+    con=confirm("Are you sure to cancel this awarded project?");
+    if(con!=true)
+    {
+        return false;
+    }
+	else
+	{
+	window.location.href="<?php echo base_url(); ?>admin/awardcupdate/"+id+"/"+job_id;
+	}
+	
+}
+</script>
+
+<?php
+$this->load->view('admin/includes/vwFooter');
+?>
+<link rel="stylesheet" href="<?php echo base_url(); ?>assets/fancybox/source/jquery.fancybox.css" type="text/css" media="screen" />
+<script type="text/javascript" src="<?php echo base_url(); ?>assets/fancybox/source/jquery.fancybox.pack.js"></script> 
+<script type="text/javascript">
+	$(document).ready(function() {//alert("hello");
+		//$(".fancybox").fancybox();
+		$(".various").fancybox({
+		maxWidth	: 800,
+		maxHeight	: 600,
+		fitToView	: false,
+		width		: '70%',
+		height		: '70%',
+		autoSize	: false,
+		closeClick	: false,
+		openEffect	: 'none',
+		closeEffect	: 'none'
+	});
+	});
+	
+</script>
+<script type="text/javascript">
+function hiring(id)
+{
+    con=confirm("Are you sure to end hiring for the job?");
+    if(con!=true)
+    {
+        return false;
+    }
+	else
+	{
+	window.location.href="<?php echo base_url(); ?>admin_awardjob/jobcomplete/"+id;
+	}
+	
+}
+</script>
+<script type="text/javascript">
+function openhiring(id)
+{
+    con=confirm("Are you sure to open the job again?");
+    if(con!=true)
+    {
+        return false;
+    }
+	else
+	{
+	window.location.href="<?php echo base_url(); ?>admin_awardjob/jobopen/"+id;
+	}
+	
+}
+</script>

@@ -1,0 +1,316 @@
+<?php
+$this->load->view('admin/includes/vwHeader');
+?>
+<style type="text/css">
+      img {border-width: 0}
+      * {font-family:'Lucida Grande', sans-serif;}
+    </style>
+
+		<div class="main-container" id="main-container">
+			<script type="text/javascript">
+				try{ace.settings.check('main-container' , 'fixed')}catch(e){}
+			</script>
+
+			
+			<?php
+				$this->load->view('admin/includes/vwSidebar-left');
+			?>
+
+			
+			<div class="main-content">
+				<div class="main-content-inner">
+				
+					<div class="breadcrumbs" id="breadcrumbs">
+						<script type="text/javascript">
+							try{ace.settings.check('breadcrumbs' , 'fixed')}catch(e){}
+						</script>
+
+						<ul class="breadcrumb">
+							<li>
+								<i class="ace-icon fa fa-home home-icon"></i>
+								<a href="#">Home</a>
+							</li>
+
+							<li>
+								<a href="#">Job</a>
+							</li>
+							<li class="active">Add Job</li>
+						</ul>
+
+						
+					</div>
+
+					
+					<div class="page-content">
+						<?php
+							$this->load->view('admin/includes/vwSidebar-settings');
+						?>
+						
+						<div class="page-header">
+							<h1>
+								Job
+								<small>
+									<i class="ace-icon fa fa-angle-double-right"></i>
+									Add Job
+								</small>
+							</h1>
+						</div>
+
+						<div class="row">
+							<div class="col-xs-12">
+							
+                                
+								<?php if (isset($message_error) && $message_error!="") { ?>
+                                     <div class="alert alert-danger">
+                                        <button type="button" class="close" data-dismiss="alert">
+                                            <i class="ace-icon fa fa-times"></i>
+                                        </button>
+                                        <p> <?php echo $message_error; ?> </p>
+                                    </div>
+                                <?php } ?>
+                                
+                                <?php if (isset($message_success) && $message_success!="") { ?>
+                                     <div class="alert alert-block alert-success">
+                                        <button type="button" class="close" data-dismiss="alert">
+                                            <i class="ace-icon fa fa-times"></i>
+                                        </button>
+                                        <p> <?php echo $message_success; ?> </p>
+                                    </div>
+                                <?php } ?>
+                                 <?php  if($this->session->flashdata('flash_message')){
+								 	if($this->session->flashdata('flash_message') == 'try_another') { ?>
+                                    <div class="alert alert-block alert-danger">
+                                        <button type="button" class="close" data-dismiss="alert">
+                                            <i class="ace-icon fa fa-times"></i>
+                                        </button> 
+                                        <p> Alias name is not available. Try another. </p>
+                                    </div> <?php
+                                }} ?>
+                                <?php if (validation_errors()!="") { ?>
+                                     <div class="alert alert-danger">
+                                        <button type="button" class="close" data-dismiss="alert">
+                                            <i class="ace-icon fa fa-times"></i>
+                                        </button>
+                                        <p> <?php echo validation_errors(); ?> </p>
+                                    </div>
+                                <?php } ?>
+                                
+                                <?php
+							  //form data
+							  $attributes = array('class' => 'form-horizontal', 'id' => 'addjobpost');
+							  //form validation
+							  echo form_open_multipart('admin/jobpost/add', $attributes);
+							  ?>
+                            
+                                
+                                	<div class="form-group">
+										<label class="col-sm-3 control-label no-padding-right" for="form-field-1"> Name* </label>
+
+										<div class="col-sm-9">
+											<input name="name" type="text" id="name" class="col-xs-10 col-sm-5 validate[required]" value="" />
+										</div>
+									</div>
+                                    <input name="alias" type="hidden" id="alias" class="col-xs-10 col-sm-5" value="" />
+                                  
+                                     <div class="form-group">
+										<label class="col-sm-3 control-label no-padding-right" for="form-field-1"> Price($)* </label>
+										<div class="col-sm-9">
+										  	<input name="price" type="text" id="price" class="col-xs-10 col-sm-5 validate[required,custom[integer]" value="" />
+										</div>
+									</div>
+                                  
+                                    
+                                <div class="form-group">
+								
+                                    <div class="col-sm-9 col-sm-offset-3">
+                                    <div id="mulitplefileuploader">Upload</div>
+									<div id="status"></div>
+                                    <input type="hidden" name="totalFile" id="totalFile" value="" class="validate[required]" />
+                                    </div>
+							    </div>
+                                    
+                                    <div class="form-group">
+										<label class="col-sm-3 control-label no-padding-right" for="form-field-1"> Description*</label>
+										<div class="col-sm-9">
+                                        	<textarea  name="desc" id="editor" class="validate[required]"></textarea>
+										</div>
+									</div>
+                                    <div class="form-group">
+										<label class="col-sm-3 control-label no-padding-right" for="form-field-1">Translate Language* </label>
+										<?php 
+										 $sql=" SELECT * FROM `languages`  ";
+							  			$val=$this->db->query($sql);
+							 			 $lang=$val->result_array();
+										 //$sub[]=array;
+										for($k = 0; $k < count($lang); $k++){
+										 $element = $lang[$k];
+										 $myArr[$element[id]] = $element[name];
+										}
+										//echo "<pre>";print_r($myArr);
+									
+											$newArray = array();
+											foreach($myArr as $key1 => $value1){
+											 foreach($myArr as $key2 => $value2){
+											  if($value1 != $value2){
+											   $newkey = $key1.'/'.$key2;
+											   $newvalue = $value1.'/'.$value2;
+											   $newArray[$newkey] = $newvalue;
+											  }
+											 }
+											}
+											//echo '<pre>';
+											//print_r($newArray);
+										 
+										?>
+										<div class="col-sm-9">
+                                <select name="language" id="language" class="col-xs-10 col-sm-5 validate[required]" >
+                                <option value=""> Select Language </option>
+                               <?php foreach ($newArray as $key=>$lang1) {
+								   $inIds = "'".str_replace("/", "','", $lang1)."'";
+											$sql_lan="SELECT name FROM `languages` WHERE `name` IN(".$inIds.")";
+											$val_lan=$this->db->query($sql_lan);
+											$lang=$val_lan->result_array();
+											 $lang2=$lang[0]['name'].' to '.$lang[1]['name'];?>
+   								<option value="<?php echo $key; ?>" ><?php echo $lang2; ?></option>
+                                  <?php } ?>
+                                 </select>
+                                        </div>
+									</div>
+                                    
+                                    <!--<div class="form-group">
+										<label class="col-sm-3 control-label no-padding-right" for="form-field-1">Translate To* </label>
+										<?php 
+										 $sql=" SELECT * FROM `languages` ORDER BY `name` ";
+							  			$val=$this->db->query($sql);
+							 			 $lang=$val->result();
+										?>
+										<div class="col-sm-9">
+                                <select name="language" id="language" class="col-xs-10 col-sm-5 validate[required]" >
+                                <option value=""> Select Language </option>
+                                                <?php foreach ($lang as $lang1) {
+											    ?>
+   								<option value="<?php echo $lang1->id; ?>" ><?php echo $lang1->name; ?></option>
+							     
+                                  <?php } ?>
+                                 </select>
+                                        </div>
+									</div>-->
+                                    
+                                    <div class="form-group">
+                                    <label class="col-sm-3 control-label no-padding-right" for="form-field-1" > Job Type: </label>
+                                    <div class="col-sm-9">
+                                    
+                                    <select name="type" class="col-xs-10 col-sm-5 validate[required]">
+                                     <option value=""  >Select Type</option>                             
+                                    <option value="1"  >Private</option>
+                                    <option value="0"  >Public</option>
+                                    </select>
+                                    </div>
+                                    </div>
+                                    
+                                    
+                             
+                                    <input type="hidden" name="stage" value="0">
+                                   
+                                    <div class="clearfix form-actions">
+										<div class="col-md-offset-3 col-md-9">
+											<button class="btn btn-info" type="submit" id="submit">
+												<i class="ace-icon fa fa-check bigger-110"></i>
+												Submit
+											</button>
+
+											&nbsp; &nbsp; &nbsp;
+											<button class="btn" type="reset">
+												<i class="ace-icon fa fa-undo bigger-110"></i>
+												Reset
+											</button>
+										</div>
+									</div>
+                                    
+                                <?php echo form_close(); ?>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+<!-- page specific plugin ck editor scripts -->
+<link rel="stylesheet" href="<?php echo HTTP_ASSETS_PATH_ADMIN; ?>ckeditor/samples/css/samples.css" />
+<link rel="stylesheet" href="<?php echo HTTP_ASSETS_PATH_ADMIN; ?>ckeditor/samples/toolbarconfigurator/lib/codemirror/neo.css" />
+<script src="<?php echo HTTP_ASSETS_PATH_ADMIN; ?>ckeditor/ckeditor.js"></script>
+<script src="<?php echo HTTP_ASSETS_PATH_ADMIN; ?>ckeditor/samples/js/sample.js"></script>
+<script>
+    initSample();
+</script>
+<!--<script src="<?php echo HTTP_ASSETS_PATH_ADMIN; ?>js/jqueryn.js"></script>-->
+ 
+
+<?php
+$this->load->view('admin/includes/vwFooter');
+?>
+  <script>
+				$(document).ready(function() {
+                    $("#submit").click(function (){ 
+					//var filename = $('#totalFile').val();
+						if($('#totalFile').val() == ''){
+							alert("Please upload atleast 1 file.");
+						}
+			
+					});
+					});
+	        
+       </script>   
+       <link rel="stylesheet" href="<?php echo HTTP_ASSETS_PATH_ADMIN; ?>css/uploadfilemulti.css" />
+<!--<script src="<?php echo HTTP_ASSETS_PATH_ADMIN; ?>js/jquery-1.8.0.min.js"></script>-->
+<script src="<?php echo HTTP_ASSETS_PATH_ADMIN; ?>js/jquery.fileuploadmulti.min.js"></script>
+<script>
+$(document).ready(function()
+{
+var settings = {
+	dataType: "html",
+	url: "<?php echo base_url().'admin_jobpost/'.'upload';?>",
+	method: "POST",
+	allowedTypes:"jpg,jpeg,docx,xls,xlsx,ppt,pptx,png,gif,doc,pdf,zip,tar,txt",
+	fileName: "myfile",
+	multiple: false,
+	onSuccess:function(files,data,xhr)
+	{	
+		$("#test").val("Glenn Quagmire");
+		var total=$('#totalFile').val();
+		$('#totalFile').val(total+data);
+		var total1=$('#totalFile').val();
+		var filePath = data;
+		var currentId= $(".remove-file-cls").attr("id");
+ 		 $('#upload-statusbar-'+currentId).find('.remove-file-cls').html("<a href='javascript:void(0);' onclick='return theFunction();' class='test' id='"+filePath+"'>Remove</a>");
+		
+	},
+    afterUploadAll:function()
+    {
+        //alert("all images uploaded!!");
+    },
+	onError: function(files,status,errMsg)
+	{		
+		$("#status").html("<font color='red'>Upload is Failed</font>");
+	}
+}
+$("#mulitplefileuploader").uploadFile(settings);
+
+});
+</script> 
+<script type="text/javascript">
+  	function theFunction () {
+	var id = $(".test").attr('id');
+		 $.ajax({
+					dataType: "html",
+					type: "POST",
+					data: {id:id},
+					cache: false,
+					url:  '<?php echo  base_url().'admin_jobpost/linkdelete';?>',
+					success: function (data, textStatus){
+						alert(data); 
+                	}
+            });
+    exit;
+    }  
+</script>

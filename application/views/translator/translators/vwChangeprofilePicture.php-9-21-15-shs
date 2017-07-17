@@ -1,0 +1,187 @@
+<?php
+error_reporting(0);
+$this->load->view('translator/includes/vwHeader');
+
+?>
+
+		<!-- /section:basics/navbar.layout -->
+		<div class="main-container" id="main-container">
+			
+<script type="text/javascript">
+				try{ace.settings.check('main-container' , 'fixed')}catch(e){}
+			</script>
+			<!-- #section:basics/sidebar -->
+			<?php
+				$this->load->view('translator/includes/vwSidebar-left');
+
+			?>
+
+			<!-- /section:basics/sidebar -->
+			<div class="main-content">
+				<div class="main-content-inner">
+					<!-- #section:basics/content.breadcrumbs -->
+					<div class="breadcrumbs" id="breadcrumbs">
+						<script type="text/javascript">
+							try{ace.settings.check('breadcrumbs' , 'fixed')}catch(e){}
+						</script>
+
+						<ul class="breadcrumb">
+							<li>
+								<i class="ace-icon fa fa-home home-icon"></i>
+								<a href="#">Home</a>
+							</li>
+							<li class="active">Dashboard</li>
+						</ul><!-- /.breadcrumb -->
+
+						<!-- #section:basics/content.searchbox -->
+						<div class="nav-search" id="nav-search">
+							<form class="form-search">
+								<span class="input-icon">
+									<input type="text" placeholder="Search ..." class="nav-search-input" id="nav-search-input" autocomplete="off" />
+									<i class="ace-icon fa fa-search nav-search-icon"></i>
+								</span>
+							</form>
+						</div><!-- /.nav-search -->
+
+						<!-- /section:basics/content.searchbox -->
+					</div>
+
+					<!-- /section:basics/content.breadcrumbs -->
+					<div class="page-content">
+						<!-- #section:settings.box -->
+						<?php
+							$this->load->view('translator/includes/vwSidebar-settings');
+						?>
+                        <!-- /.ace-settings-container -->
+
+						<!-- /section:settings.box -->
+						<div class="page-header">
+							<h1>
+								Profile Picture
+								<small>
+									<i class="ace-icon fa fa-angle-double-right"></i>
+									Edit Profile Picyure
+								</small>
+							</h1>
+						</div><!-- /.page-header -->
+
+						<div class="row">
+                         <?php if (validation_errors()!="") { ?>
+                         <div class="alert alert-danger">
+                            <button type="button" class="close" data-dismiss="alert">
+                                <i class="ace-icon fa fa-times"></i>
+                            </button>
+                            <p> <?php echo validation_errors(); ?> </p>
+                        </div>
+                    <?php } ?>
+                    <?php if (isset($message_success) && $message_success!="") { ?>
+                         <div class="alert alert-block alert-success">
+                            <button type="button" class="close" data-dismiss="alert">
+                                <i class="ace-icon fa fa-times"></i>
+                            </button>
+                            <p> <?php echo $message_success; ?> </p>
+                        </div>
+                    <?php } ?>
+
+                     <?php if (isset($message_error) && $message_error!="") { ?>
+                        <div class="alert alert-danger">
+                            <button type="button" class="close" data-dismiss="alert">
+                                <i class="ace-icon fa fa-times"></i>
+                            </button>
+                            <p> <?php echo $message_error; ?> </p>
+                        </div>
+                    <?php } ?>
+                    
+                    <?php if ($this->session->flashdata('flsh_success')) { ?>
+                         <div class="alert alert-block alert-success">
+                            <button type="button" class="close" data-dismiss="alert">
+                                <i class="ace-icon fa fa-times"></i>
+                            </button>
+                            <p> <?php  echo $this->session->flashdata('flsh_success'); ?> </p>
+                        </div>
+                    <?php } ?>
+                    
+                    
+    <div class="col-xs-12">
+    
+    <?php
+        //print_r($results);
+        //die();
+    ?>
+        <?php 
+		$attributes = array('class' => 'form-changeprofilepicture', 'id'=>'user-changeprofilepicture'); 
+		echo form_open_multipart('translator/changeprofilepicture', $attributes); 
+		?>
+            
+            
+            <div class="form-group" style="overflow:hidden;">
+                <label class="col-sm-3 control-label no-padding-right" for="form-field-1">Profile Image (600px*600px for best fit) : </label>
+                <div class="col-sm-9">
+                	<input name="images" id="images"  type="file" class="form-control col-xs-10 col-sm-5" value="" />
+                </div>
+            </div>
+            <div class="col-lg-12">
+           <?php /*?> <?php //if(count($results > 0)) { ?>
+				<?php 
+				if ($results[0]['newimages']!= "" && file_exists("./uploads/translator/profile/".$results[0]['newimages']))   { ?>
+                    <div class="col-sm-6" style="overflow:hidden;">
+                    	<label>Image Waiting For Approved</label>
+                        <img src="<?php echo base_url(); ?>/uploads/artist/profile/<?php echo $results[0]['newimages']; ?>" class="img-responsive" />
+                    </div>
+                <?php } ?>
+                
+                <?php 
+				if ($results[0]['images']!= "" && file_exists("./uploads/artist/profile/".$results[0]['images']))   { ?>
+                
+                    <div class="col-sm-6" style="overflow:hidden;">
+                    	<label>Approved Profile Picture</label>
+                        <img src="<?php echo base_url(); ?>/uploads/artist/profile/<?php echo $results[0]['images']; ?>" class="img-responsive" />
+                    </div>
+                <?php } ?>
+            </div><?php */?>
+            
+            
+             <?php if($results[0]['images']!="" && file_exists("./uploads/translator/profile/".$results[0]['images'])) { ?>
+                                    <div class="form-group">
+										<label class="col-sm-3 control-label no-padding-right" for="form-field-1"> Uploaded Image : </label>
+
+										<div class="col-sm-9" style="max-height:200px; max-width:200px;">
+                                        	<img src="<?php echo base_url(); ?>uploads/translator/profile/<?php echo $results[0]['images']; ?>" class="img-responsive" />
+										</div>
+									</div>
+                                     <input type="hidden" name="preimage" size="20" class="col-xs-10 col-sm-5" value="<?php echo $results[0]['images']; ?>" />
+                                    
+                                    <?php } //else { ?>
+            
+            
+            
+            <div class="col-md-offset-4 col-md-8" style="padding-top:30px;">
+                    <button class="btn btn-info" type="submit">
+                        <i class="ace-icon fa fa-check bigger-110"></i>
+                        Submit
+                    </button>
+
+                    &nbsp; &nbsp; &nbsp;
+                    <button class="btn" type="reset">
+                        <i class="ace-icon fa fa-undo bigger-110"></i>
+                        Reset
+                    </button>
+                </div>
+
+            <?php echo form_close(); ?>
+            
+        
+
+								<!-- PAGE CONTENT ENDS -->
+							</div><!-- /.col -->
+						</div>
+					</div><!-- /.page-content -->
+				</div>
+			</div><!-- /.main-content -->
+		</div><!-- /.main-container -->
+        
+        <!-- inline scripts related to this page -->
+      
+<?php
+$this->load->view('translator/includes/vwFooter');
+?>

@@ -1,0 +1,286 @@
+<?php $this->load->view('admin/includes/vwHeader'); ?>
+<script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+<script type="text/javascript" src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
+<link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
+<div class="main-container" id="main-container">
+    <script type="text/javascript">
+        try{ace.settings.check('main-container' , 'fixed')}catch(e){}
+    </script>
+	<script type="text/javascript">
+		$(function() {
+		    $('input[name="daterange"]').daterangepicker();
+		});
+		
+		$(function() {
+    	$( "#invoiceDateFrom" ).datepicker().on('changeDate',function(e) {
+
+		});
+
+	    $( "#invoiceDateTo" ).datepicker().on('changeDate',function(e) {
+
+		});
+
+	});
+		
+	</script>
+    <style media="screen">
+        .toggle-details { cursor: pointer; }
+    </style>
+
+    <!-- #section:basics/sidebar -->
+    <?php $this->load->view('admin/includes/vwSidebar-left'); ?>
+
+    <div class="main-content">
+        <div class="main-content-inner">
+            <div class="breadcrumbs" id="breadcrumbs">
+                <script type="text/javascript">
+                    try{ace.settings.check('breadcrumbs' , 'fixed')}catch(e){}
+                </script>
+
+                <ul class="breadcrumb">
+                    <li>
+                        <i class="ace-icon fa fa-home home-icon"></i>
+                        <a href="#">Home</a>
+                    </li>
+
+                    <li>
+                        <a href="#">Job Profit</a>
+                    </li>
+                    <li class="active">Profit List</li>
+                </ul><!-- /.breadcrumb -->
+            </div>
+
+            <div class="page-content">
+                <!-- #section:settings.box -->
+                <?php $this->load->view('admin/includes/vwSidebar-settings'); ?>
+
+                <!-- /section:settings.box -->
+                <div class="page-header">
+                    <h1>
+                        Job Profit
+                        <small>
+                            <i class="ace-icon fa fa-angle-double-right"></i>
+                            View Profit List
+                        </small>
+                    </h1>
+                </div>
+
+                <div class="row">
+                    <div class="col-xs-12">
+                        <?php if($this->session->flashdata('success_message')) { ?>
+                        <div class="alert alert-block alert-success">
+                            <button type="button" class="close" data-dismiss="alert">
+                            <i class="ace-icon fa fa-times"></i>
+                            </button>
+                            <p><?php echo $this->session->flashdata('success_message'); ?></p>
+                        </div>
+                        <?php } ?>
+
+                        <?php if($this->session->flashdata('error_message')) { ?>
+                        <div class="alert alert-block alert-danger">
+                            <button type="button" class="close" data-dismiss="alert">
+                            <i class="ace-icon fa fa-times"></i>
+                            </button>
+                            <p><?php echo $this->session->flashdata('error_message'); ?></p>
+                        </div>
+                        <?php } ?>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="clearfix">
+                            <div class="pull-right tableTools-container"></div>
+                        </div>
+                        <div class="table-header">
+                            Results for "Job Profit List"
+                        </div>
+
+                        <style type="text/css">
+                            .order_by_cls { display:none; }
+                            .nonvisible { display:none; }
+                        </style>
+
+                        <div class="row">
+                            <div class="col-md-12" style="padding: 10px;">
+                                <?php
+                                 $attributes = array('class' => 'form-inline reset-margin', 'id' => 'myform');
+                                 echo form_open('admin/profit/', $attributes);
+                                 $data_submit= array('name' => 'mysubmit', 'class' => 'btn btn-primary btn-sm', 'value' => 'Search');
+                                 $datai = array(
+                                        'name'        => 'search_string',
+                                        'placeholder' => 'Search Job title and Line numbers',
+                                        'class'       => 'col-md-4',
+                                        'style'       => 'margin-right: 10px;'
+                                  );
+                                 echo form_input($datai);
+
+                                 echo form_submit($data_submit);
+                                 echo form_close();
+                                 ?>
+                            </div>
+                        </div>
+                        <div class = "row" style = "padding: 15px 0;">
+					  		<?php echo form_open('admin/profit/', $attributes); ?>
+					  		<div class = "col-md-6">
+					  			<h5>Filter by Date</h5>
+						  		<div class = "row">
+						  			<div class = "col-md-5">
+						  				<input class = "form-control" type="text" id = "invoiceDateFrom" name = "invoiceDateFrom" placeholder = "From Date">
+						  			</div>
+						  			<div class = "col-md-5">
+						  				<input class = "form-control" type="text" id = "invoiceDateTo" name = "invoiceDateTo" placeholder = "To Date">
+						  			</div>
+						  			<div class = "col-md-2">
+										<?php $data_submit= array('name' => 'mysubmit', 'class' => 'btn btn-primary btn-sm', 'value' => 'Go'); ?>
+					  					<?php echo '&nbsp;&nbsp;'.form_submit($data_submit).'&nbsp;&nbsp;'; ?>
+						  			</div>
+						  		</div>
+
+					  		</div>
+					  		<div class = "col-md-6">
+					  			<h5>Filter by Payment Status and Keyword Search</h5>
+					  			<div class = "row">
+					  				<div class = "col-md-6">
+									    <select name="payment_status" class="validate[required] form-control">
+									        <option value=""> Select Payment Status </option>
+									        <option value="1" <?php if($payment_status_selected=='1'){echo 'selected';} ?> >Paid</option>
+									        <option value="0" <?php if($payment_status_selected=='0'){echo 'selected';} ?> >Unpaid</option>
+									    </select>
+					  				</div>
+					  				<div class = "col-md-6">
+					  					<input name = "search_string" id = "search_string" placeholder = "Search Key" type = "text">
+					  					<?php $data_submit= array('name' => 'mysubmit', 'class' => 'btn btn-primary btn-sm', 'value' => 'Go'); ?>
+					  					<?php echo '&nbsp;&nbsp;'.form_submit($data_submit).'&nbsp;&nbsp;'; ?>
+					  				</div>
+					  			</div>
+
+					  		</div>
+					  		<?php echo form_close(); ?>
+					  	</div>
+                        <table id="dynamic-table" class="table table-striped table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th class="center">Job Title</th>
+                                    <th class="center">Translator</th>
+                                    <th style="text-align: right;">Job Price</th>
+                                    <th style="text-align: right;">Awarded Price</th>
+                                    <th style="text-align: right;">Gross Profit</th>
+                                    <th style="text-align: right;">Gross Profit Margin</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                <?php if (count($jobprofit)) { ?>
+                                    <?php foreach ($jobprofit as $profit) { ?>
+                                <tr class="toggle-details" data-id="<?php echo $profit['lineNumberCode'] ?>">
+                                    <td>
+                                        <?php
+                                        /* if ($profit['lineNumberCode'] == '') {
+                                             $job = $profit['name'];
+                                         } else {
+                                             $job = $profit['name'].' / '.$profit['lineNumberCode'];
+                                         }*/
+                                         ?>
+                                           <?php
+                                         if ($profit['name'] == '') {
+                                             $job = 'Job Manually Entered / '.$profit['lineNumberCode'];
+                                         } else {
+                                             $job = $profit['name'].' / '.$profit['lineNumberCode'];
+                                         }
+                                         ?>
+                                        <a href="<?php echo base_url(); ?>admin_jobpost/viewsummary/<?php echo $profit['id']; ?>" target="_blank"><?php echo $job ?></a>
+                                    </td>
+                                    <td>
+                                        <?php
+                                        $sql = "SELECT t.id, CONCAT(t.first_name, ' ', t.last_name) translator_name FROM bidjob b JOIN translator t ON t.id = b.trans_id WHERE b.awarded = 1 AND (b.stage = 2 OR b.stage = 3) AND b.job_id = {$profit['id']}";
+                                        $query =$this->db->query($sql);
+
+                                        if ($query->num_rows()) {
+                                            $translator_name = '';
+                                            foreach ($query->result_array() as $translator) {
+                                                $translator_name_raw[] = "{$translator['translator_name']},{$translator['id']}";
+                                            }
+
+                                            $translator_name_arr = array_unique($translator_name_raw);
+
+                                            foreach ($translator_name_arr as $name) {
+                                                $name_arr = explode(',', $name);
+                                                $translator_name .= '<a target="_blank" href="'.base_url().'admin_translators/edittranslator/'.$name_arr[1].'">'.$name_arr[0].'</a>'.', ';
+                                            }
+
+                                            $translator_name = trim($translator_name, ', ');
+                                        }
+
+                                        unset($translator_name_raw);
+                                        unset($translator_name_arr);
+                                         ?>
+                                         <?php echo $translator_name ?>
+                                    </td>
+                                    <td style="text-align: right;">$<?php echo number_format($profit['job_price'], 2, '.', ',') ?></td>
+                                    <td style="text-align: right;">$<?php echo number_format($profit['awarded_price'], 2, '.', ',') ?></td>
+                                    <td style="text-align: right;">$<?php echo number_format($profit['profit'], 2, '.', ',') ?></td>
+                                     <td style="text-align: right;"><?php $leftover = $profit['profit'] / $profit['job_price']; ?><?php echo $percent_friendly = number_format( $leftover * 100, 2 ) . '%';?></td>
+                                </tr>
+                                <tr class="line-number-<?php echo $profit['lineNumberCode'] ?>-wrapper" style="display:none">
+                                    <td colspan="5">loading... </td>
+                                </tr>
+                                    <?php } ?>
+                                <?php } else { ?>
+                                <tr>
+                                    <td colspan="5">No data found</td>
+                                </tr>
+                                <?php }?>
+                            </tbody>
+
+                            <tfoot>
+                                <tr>
+                                    <td colspan="5" class="table-header">
+                                        <?php
+                                        echo 'Total Job Price $'.number_format($finance_summary->total_job_price, 2, '.', ',').' ';
+                                        echo '&nbsp;Total Awarded Price $'.number_format($finance_summary->total_awarded_price, 2, '.', ',').', ';
+                                        echo '&nbsp;Total Profit $'.number_format($finance_summary->total_profit, 2, '.', ',').', ';
+                                        echo '&nbsp;Average Profit $'.number_format($finance_summary->average_profit, 2, '.', ',');
+                                        ?>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    <?php if ($this->pagination->create_links()) { ?>
+                    <div class="col-md-12">
+                        <?php echo '<div class="pagination">'.$this->pagination->create_links().'</div>'; ?>
+                    </div>
+                    <?php } ?>
+                </div>
+                <button class="btn btn-info btn-sm" onclick="goBack()">Go Back</button>
+            </di>
+        </div>
+    </div>
+
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $(document).on('click', '.toggle-details', function (e) {
+            var $ln = $(this).data('id');
+
+            if ($('.line-number-'+$ln+'-wrapper').is(':visible')) {
+                $('.line-number-'+$ln+'-wrapper').hide();
+            } else {
+                $('.line-number-'+$ln+'-wrapper').show();
+
+                $.ajax({
+                    url: "<?php echo base_url() ?>admin_profit/load_line_number_details",
+                    data: { line_number_code: $ln },
+                    success: function (response) {
+                        $('.line-number-'+$ln+'-wrapper').css('background-color', '#333');
+                        $('.line-number-'+$ln+'-wrapper').html(response);
+                    }
+                });
+            }
+        });
+    });
+</script>
+
+<?php $this->load->view('admin/includes/vwFooter'); ?>

@@ -1,0 +1,108 @@
+<?php
+class Front_job_model extends CI_Model {
+ 
+    /**
+    * Responsable for auto load the database
+    * @return void
+    */
+    public function __construct()
+    {
+        $this->load->database();
+    }
+
+     public function get_jobpost($language_from=null,$language_to=null, $search_string=null, $order=null, $order_type='Asc', $limit_start, $limit_end)
+    {	    
+	
+        $this->db->select('*');
+        $this->db->from('jobpost');
+		$this->db->where("stage !=",2);
+		if($language_from != null && $language_from != 0){
+			$this->db->where('language_from', $language_from);
+		}
+		if($language_to != null && $language_to != 0){
+			$this->db->where('language', $language_to);
+		}
+		if($search_string){
+			
+			$lan_sql="select * from `languages` where `name`='".$search_string."'";
+		$lan_query=$this->db->query($lan_sql);
+		$lan_num=$lan_query->num_rows();
+		if ($lan_num > 0)
+        {
+		$lan_fetch=$lan_query->row();
+		$lan_id=$lan_fetch->id;
+		
+       		
+		$this->db->where("(`language_from` LIKE '%".$lan_id."%' OR `language` LIKE '%$search_string%')");
+        }else{
+		/*$this->db->where("(`description` LIKE '%$search_string%' OR `last_name` LIKE '%$search_string%' OR `email_address` LIKE '%$search_string%' OR `location` LIKE '%$search_string%')");*/
+		$this->db->like('description', $search_string);
+		}
+			
+			
+			
+			
+		}	
+
+		$this->db->group_by('jobpost.id');
+
+		if($order){
+			$this->db->order_by($order, $order_type);
+		}else{
+		    $this->db->order_by('id', $order_type);
+		}
+
+
+		$this->db->limit($limit_start, $limit_end);
+
+        $query = $this->db->get();
+		//echo $this->db->last_query();
+		return $query->result_array(); 	
+    }
+
+    
+    function count_jobpost($language_from=null,$language_to=null,$search_string=null, $order=null)
+    {
+		$this->db->select('*');
+		$this->db->from('jobpost');
+		$this->db->where("stage !=",2);
+		if($language_from != null && $language_from != 0){
+			$this->db->where('language_from', $language_from);
+		}
+		if($language_to != null && $language_to != 0){
+			$this->db->where('language', $language_to);
+		}
+		if($search_string){
+			
+			$lan_sql="select * from `languages` where `name`='".$search_string."'";
+		$lan_query=$this->db->query($lan_sql);
+		$lan_num=$lan_query->num_rows();
+		if ($lan_num > 0)
+        {
+		$lan_fetch=$lan_query->row();
+		$lan_id=$lan_fetch->id;
+		
+       		
+		$this->db->where("(`language_from` LIKE '%".$lan_id."%' OR `language` LIKE '%$search_string%')");
+        }else{
+		/*$this->db->where("(`description` LIKE '%$search_string%' OR `last_name` LIKE '%$search_string%' OR `email_address` LIKE '%$search_string%' OR `location` LIKE '%$search_string%')");*/
+		$this->db->like('description', $search_string);
+		}
+			
+			
+			
+			
+		}	
+		if($order){
+			$this->db->order_by($order, 'Asc');
+		}else{
+		    $this->db->order_by('id', 'Asc');
+		}
+		$query = $this->db->get();
+		return $query->num_rows();        
+    }  
+	
+
+ 
+}
+?>

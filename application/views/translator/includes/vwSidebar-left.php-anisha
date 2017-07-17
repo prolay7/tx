@@ -1,0 +1,64 @@
+<div id="sidebar" class="sidebar responsive">
+
+                <script type="text/javascript">
+ /*menu handler*/
+ $(function(){
+  function stripTrailingSlash(str) {
+   var resultArr = str.split('/');
+   if(resultArr[resultArr.length-1] == ''){
+    var str = resultArr[resultArr.length-2];
+   } else {
+    var str = resultArr[resultArr.length-1];
+   }   
+   return str;
+  }
+  
+  var url = window.location.pathname;  
+  var activePage = stripTrailingSlash(url);
+  $('.menuclass').parent().removeClass('active'); 
+  $('.menuclass').each(function(){  
+   var currentPage = stripTrailingSlash($(this).attr('href'));
+   
+   if (activePage == currentPage) {
+    jQuery(this).parent().addClass('active'); 
+   } 
+  });
+ });
+</script>
+		
+                <div id="about-us-navigation" class="box-1">
+          <div class="a">
+            <ul>
+            
+              <li class="active"><a href="<?php echo base_url(); ?>translator/" class="menuclass">Dashboard</a></li>
+              <li><a href="<?php echo base_url(); ?>translator/changeprofile" class="menuclass">Edit Profile</a></li>
+              <li><a href="<?php echo base_url(); ?>translator/changeprofilepicture" class="menuclass"> Profile Picture</a></li>
+              <li><a href="<?php echo base_url(); ?>translator/changepassword" class="menuclass">Change Password </a></li>
+           <!--   <li><a href="<?php echo base_url(); ?>translator/message" class="menuclass"> Messages</a></li>-->
+              
+              <li><a href="<?php echo base_url(); ?>translator/chat" class="menuclass">Messages</a></li>
+              
+               <li><a href="<?php echo base_url(); ?>translator/proposal" class="menuclass">Proposals</a></li>
+              <li><a href="<?php echo base_url(); ?>translator/award" class="menuclass">Awarded Jobs</a></li>
+           <!--   <li><a href="<?php echo base_url(); ?>translator/working" class="menuclass"> Working Jobs</a></li>-->
+             <!-- <li><a href="<?php echo base_url(); ?>translator/earning" class="menuclass"> Earning</a></li>-->
+               <li><a href="<?php echo base_url(); ?>translator/invoice" class="menuclass"> Invoice</a></li>
+              <li><a href="<?php echo base_url(); ?>translator/paypal" class="menuclass">Paypal Info</a></li>
+              <li><a href="<?php echo base_url(); ?>translator/logout" class="menuclass"> Logout</a></li>
+            </ul>
+          </div>
+        </div>
+                
+                
+			<!-- /.nav-list -->
+
+				<!-- #section:basics/sidebar.layout.minimize 
+				<div class="sidebar-toggle sidebar-collapse" id="sidebar-collapse">
+					<i class="ace-icon fa fa-angle-double-left" data-icon1="ace-icon fa fa-angle-double-left" data-icon2="ace-icon fa fa-angle-double-right"></i>
+				</div>-->
+
+				<!-- /section:basics/sidebar.layout.minimize -->
+				<script type="text/javascript">
+					try{ace.settings.check('sidebar' , 'collapsed')}catch(e){}
+				</script>
+			</div>
